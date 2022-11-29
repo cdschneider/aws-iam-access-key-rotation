@@ -1,0 +1,116 @@
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "ListUsers",
+    "States": {
+      "ListUsers": {
+        "Type": "Task",
+        "Parameters": {},
+        "Resource": "arn:aws:states:::aws-sdk:iam:listUsers",
+        "Next": "Map"
+      },
+      "Map": {
+        "Type": "Map",
+        "Iterator": {
+          "StartAt": "ListAccessKeys",
+          "States": {
+            "ListAccessKeys": {
+              "Type": "Task",
+              "Parameters": {
+                "UserName.$": "$.UserName"
+              },
+              "Resource": "arn:aws:states:::aws-sdk:iam:listAccessKeys",
+              "ResultPath": "$",
+              "Next": "For each AccessKey"
+            },
+            "For each AccessKey": {
+              "Type": "Map",
+              "End": true,
+              "Iterator": {
+                "StartAt": "Lambda Invoke",
+                "States": {
+                  "Lambda Invoke": {
+                    "Type": "Task",
+                    "Resource": "${StatesDateTimeAddArn}",
+                    "Parameters": {
+                      "Value.$": "$.CreateDate",
+                      "Step": 7,
+                      "Unit": "Days"
+                    },
+                    "Next": "Is AccessKey expired?",
+                    "ResultPath": "$.ExpiryDate"
+                  },
+                  "Is AccessKey expired?": {
+                    "Type": "Choice",
+                    "Choices": [
+                      {
+                        "And": [
+                          {
+                            "Variable": "$.ExpiryDate",
+                            "TimestampLessThanEqualsPath": "$$.Execution.StartTime"
+                          },
+                          {
+                            "Variable": "$.Status",
+                            "StringEquals": "Active"
+                          }
+                        ],
+                        "Next": "UpdateAccessKey"
+                      }
+                    ],
+                    "Default": "Is AccessKey expired? finish"
+                  },
+                  "UpdateAccessKey": {
+                    "Type": "Task",
+                    "End": true,
+                    "Parameters": {
+                      "AccessKeyId.$": "$.AccessKeyId",
+                      "UserName.$": "$.UserName",
+                      "Status": "Inactive"
+                    },
+                    "Resource": "arn:aws:states:::aws-sdk:iam:updateAccessKey",
+                    "ResultPath": null
+                  },
+                  "Is AccessKey expired? finish": {
+                    "Type": "Succeed"
+                  }
+                }
+              },
+              "ItemsPath": "$.AccessKeyMetadata"
+            }
+          }
+        },
+        "ItemsPath": "$.Users",
+        "ResultPath": null,
+        "Next": "Continuation needed?"
+      },
+      "Continuation needed?": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.Marker",
+            "IsPresent": true,
+            "Next": "Pass"
+          }
+        ],
+        "Default": "No more Users"
+      },
+      "Pass": {
+        "Type": "Pass",
+        "Next": "ListUsers (w Marker)",
+        "ResultPath": "$",
+        "Parameters": {
+          "Marker.$": "$.Marker"
+        }
+      },
+      "ListUsers (w Marker)": {
+        "Type": "Task",
+        "Next": "Map",
+        "Parameters": {
+          "Marker.$": "$.Marker"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:iam:listUsers"
+      },
+      "No more Users": {
+        "Type": "Succeed"
+      }
+    }
+  }
