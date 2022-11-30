@@ -1,5 +1,5 @@
 {
-    "Comment": "A description of my state machine",
+    "Comment": "State machine that deactivates all active user AccessKeys that are more than 7 days old",
     "StartAt": "ListUsers",
     "States": {
       "ListUsers": {
