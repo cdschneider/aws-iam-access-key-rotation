@@ -13,6 +13,8 @@ Resources:
       DefinitionSubstitutions:
         StatesDateTimeAddArn: !GetAtt StatesDateTimeAddFunction.Arn
       Type: EXPRESS
+      Tracing:
+        Enabled: True
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
