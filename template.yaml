@@ -46,7 +46,13 @@ Resources:
       Runtime: dotnet6
       Architectures:
         - x86_64
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !GetAtt StatesDateTimeAddFunctionDlq.Arn
    
+  StatesDateTimeAddFunctionDlq:
+    Type: AWS::SQS::Queue
+
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
