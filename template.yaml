@@ -11,7 +11,8 @@ Resources:
     Properties:
       DefinitionUri: statemachine/workflow.asl.json
       DefinitionSubstitutions:
-        StatesDateTimeAddArn: !GetAtt StatesDateTimeAddFunction.Arn
+        StatesDateTimeAddFunctionArn: !GetAtt StatesDateTimeAddFunction.Arn
+        DeactivationWarningSnsTopicArn: !Ref DeactivationWarningSnsTopic
       Type: EXPRESS
       Tracing:
         Enabled: True
@@ -34,6 +35,8 @@ Resources:
         - !Ref StepFunctionsLoggingPolicy
         - LambdaInvokePolicy:
             FunctionName: !Ref StatesDateTimeAddFunction
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt DeactivationWarningSnsTopic.TopicName
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
@@ -89,3 +92,6 @@ Resources:
             Action:
               - 'iam:UpdateAccessKey'
             Resource: '*'
+
+  DeactivationWarningSnsTopic:
+    Type: AWS::SNS::Topic
