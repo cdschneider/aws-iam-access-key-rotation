@@ -33,7 +33,7 @@ jobs:
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
       - run: sam validate
-      - run: sam build
+      - run: sam build --debug
   
   dotnet-build:
     
