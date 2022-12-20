@@ -7,7 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  sam-build:
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+      - uses: aws-actions/setup-sam@v2
+      - name: Configure AWS credentials from Test account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-duration-seconds: 900
+          role-to-assume: arn:aws:iam::892601359836:role/github-action-role
+          aws-region: us-east-1
+  
+  dotnet-build:
     
     runs-on: ubuntu-latest
     strategy:
