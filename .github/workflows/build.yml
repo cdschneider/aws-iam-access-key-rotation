@@ -9,14 +9,14 @@ on:
 env:
   AWS_REGION : "us-east-1"
 
-permissions:
-  id-token: write   # This is required for requesting the JWT
-
 jobs:
   sam-build:
     
     runs-on: ubuntu-latest
-    
+    permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
