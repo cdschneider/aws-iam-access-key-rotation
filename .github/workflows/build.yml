@@ -49,6 +49,8 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Restore tools
+        run: dotnet tool restore -v n
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
