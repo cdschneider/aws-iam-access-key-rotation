@@ -19,6 +19,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-duration-seconds: 900
+          role-to-assume: arn:aws:iam::892601359836:role/github-action-role
+          aws-region: ${{ env.AWS_REGION }}
       - uses: actions/setup-python@v3
         with:
           python-version: '3.8'
@@ -26,12 +32,7 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - uses: aws-actions/setup-sam@v2
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-duration-seconds: 900
-          role-to-assume: arn:aws:iam::892601359836:role/github-action-role
-          aws-region: ${{ env.AWS_REGION }}
+      - run: dotnet tool restore -v n      
       - run: sam validate
       - run: sam build --debug
   
@@ -49,8 +50,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Restore tools
-        run: dotnet tool restore -v n
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
