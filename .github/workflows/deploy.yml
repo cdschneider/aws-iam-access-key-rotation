@@ -30,6 +30,7 @@ jobs:
   
   sam-deploy:
     
+    needs: sam-build
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # This is required for requesting the JWT
