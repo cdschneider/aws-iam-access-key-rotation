@@ -23,6 +23,7 @@ jobs:
       - uses: aws-actions/setup-sam@v2
       - run: dotnet tool restore -v n
       - run: sam build
+      - uses: actions/upload-artifact@v3
         with:
           name: sam-build
           path: .aws-sam/build/**
