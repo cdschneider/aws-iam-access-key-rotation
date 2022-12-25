@@ -29,6 +29,7 @@ jobs:
           path: |
             ./.aws-sam/build/**
             ./samconfig.toml
+            ./statemachine/**
   
   sam-deploy:
     
