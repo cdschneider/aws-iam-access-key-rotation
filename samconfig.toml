@@ -1,0 +1,13 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "aws-access-key-expiry"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1e89st9r1pcd9"
+s3_prefix = "aws-access-key-expiry"
+region = "us-east-1"
+confirm_changeset = true
+force_upload = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = []

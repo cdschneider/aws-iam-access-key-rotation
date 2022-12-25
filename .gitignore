@@ -629,7 +629,7 @@ fabric.properties
 
 ### SAM+config Patch ###
 # SAM config - exclude this file if sharing publicly
-samconfig.toml
+#samconfig.toml
 
 ### VisualStudioCode ###
 !.vscode/*.code-snippets
