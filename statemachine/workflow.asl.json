@@ -115,98 +115,12 @@
                               "BackoffRate": 2.0
                             }
                           ],
-                          "Next": "Get AccessKey warning window",
+                          "Next": "Check Dates",
                           "ResultPath": "$.ExpiryDate"
-                        },
-                        "Get AccessKey warning window": {
-                          "Type": "Parallel",
-                          "Branches": [
-                            {
-                              "StartAt": "Get AccessKey expiration warning lower bound",
-                              "States": {
-                                "Get AccessKey expiration warning lower bound": {
-                                  "Type": "Task",
-                                  "Resource": "${StatesDateTimeAddFunctionArn}",
-                                  "Parameters": {
-                                    "Value.$": "$.ExpiryDate",
-                                    "Step": -86695,
-                                    "Unit": "Seconds"
-                                  },
-                                  "Retry": [
-                                    {
-                                      "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                      ],
-                                      "IntervalSeconds": 1,
-                                      "MaxAttempts": 6,
-                                      "BackoffRate": 2.0
-                                    }
-                                  ],
-                                  "ResultPath": "$",
-                                  "End": true
-                                }
-                              }
-                            },
-                            {
-                              "StartAt": "Get AccessKey expiration warning upper bound",
-                              "States": {
-                                "Get AccessKey expiration warning upper bound": {
-                                  "Type": "Task",
-                                  "Resource": "${StatesDateTimeAddFunctionArn}",
-                                  "Parameters": {
-                                    "Value.$": "$.ExpiryDate",
-                                    "Step": -86105,
-                                    "Unit": "Seconds"
-                                  },
-                                  "Retry": [
-                                    {
-                                      "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                      ],
-                                      "IntervalSeconds": 1,
-                                      "MaxAttempts": 6,
-                                      "BackoffRate": 2.0
-                                    }
-                                  ],
-                                  "ResultPath": "$",
-                                  "End": true
-                                }
-                              }
-                            }
-                          ],
-                          "ResultPath": "$.ExpiryWarning",
-                          "ResultSelector": {
-                            "LowerBound.$": "$[0]",
-                            "UpperBound.$": "$[1]"
-                          },
-                          "Next": "Check Dates"
                         },
                         "Check Dates": {
                           "Type": "Choice",
                           "Choices": [
-                            {
-                              "And": [
-                                {
-                                  "Variable": "$.ExpiryWarning.LowerBound",
-                                  "TimestampLessThanEqualsPath": "$$.Execution.StartTime"
-                                },
-                                {
-                                  "Variable": "$.ExpiryWarning.UpperBound",
-                                  "TimestampGreaterThanEqualsPath": "$$.Execution.StartTime"
-                                },
-                                {
-                                  "Variable": "$.Status",
-                                  "StringEquals": "Active"
-                                }
-                              ],
-                              "Next": "Send warning notification"
-                            },
                             {
                               "And": [
                                 {
@@ -233,16 +147,6 @@
                           },
                           "Resource": "arn:aws:states:::aws-sdk:iam:updateAccessKey",
                           "ResultPath": null
-                        },
-                        "Send warning notification": {
-                          "Type": "Task",
-                          "Resource": "arn:aws:states:::sns:publish",
-                          "Parameters": {
-                            "TopicArn": "${DeactivationWarningSnsTopicArn}",
-                            "Message.$": "States.Format('User with username {} has an active AccessKey set to expire at {}', $.UserName, $.ExpiryDate)"
-                          },
-                          "ResultPath": null,
-                          "End": true
                         },
                         "Check Dates finish": {
                           "Type": "Succeed"
