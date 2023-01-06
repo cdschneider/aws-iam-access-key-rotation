@@ -1,9 +1,28 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
+
 Description: >
   aws-access-key-expiry
 
   Sample SAM Template for aws-access-key-expiry
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: aws-access-key-expiry
+    Description: TODO
+    Author: Christian Schneider
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/cdschneider/aws-access-key-expiry
+    SourceCodeUrl: https://github.com/cdschneider/aws-access-key-expiry
+
+Parameters:
+  AccessKeyTTL:
+    Type: Number
+    Description: The amount of time before an IAM access key should be expired. 
+    Default: 86400
+    MinValue: 300
 
 Resources:
   ExpireAccessKeysStateMachine:
@@ -12,6 +31,7 @@ Resources:
       DefinitionUri: statemachine/workflow.asl.json
       DefinitionSubstitutions:
         StatesDateTimeAddFunctionArn: !GetAtt StatesDateTimeAddFunction.Arn
+        AccessKeyExpirationTimeInSeconds: !Ref AccessKeyTTL
       Type: EXPRESS
       Tracing:
         Enabled: True
@@ -22,11 +42,11 @@ Resources:
         IncludeExecutionData: True
         Level: ALL
       Events:
-        RecurringScheduleV2:
-          Type: ScheduleV2
+        RecurringSchedule:
+          Type: Schedule
           Properties:
-            ScheduleExpression: "rate(5 minutes)"
-            State: ENABLED
+            Schedule: "rate(5 minutes)"
+            Enabled: True
       Policies:
         - IAMReadOnlyAccess
         - !Ref IAMUpdateAccessKeysPolicy
@@ -46,7 +66,7 @@ Resources:
       Runtime: dotnet6
       Architectures:
         - x86_64
-   
+
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:

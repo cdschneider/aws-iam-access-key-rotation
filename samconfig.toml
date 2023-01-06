@@ -1,13 +1,27 @@
 version = 0.1
+[default.global.parameters]
+region = "us-east-1"
+
 [default]
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "aws-access-key-expiry"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1e89st9r1pcd9"
 s3_prefix = "aws-access-key-expiry"
-region = "us-east-1"
 confirm_changeset = true
 force_upload = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
+tags = "App=\"aws-access-key-expiry\""
 image_repositories = []
+
+[default.package]
+[default.package.parameters]
+s3_bucket = "cdschneid-sam-artifacts"
+s3_prefix = "aws-access-key-expiry"
+output_template_file = "packaged.yaml"
+force_upload = true
+
+[default.publish]
+[default.publish.parameters]
+template_file = "packaged.yaml"

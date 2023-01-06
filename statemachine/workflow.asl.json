@@ -1,5 +1,5 @@
 {
-  "Comment": "State machine that deactivates all active user AccessKeys that are more than 7 days old",
+  "Comment": "IAM Access Key expiration state machine",
   "StartAt": "Is this a continuation?",
   "TimeoutSeconds": 60,
   "States": {
@@ -99,8 +99,8 @@
                           "Resource": "${StatesDateTimeAddFunctionArn}",
                           "Parameters": {
                             "Value.$": "$.CreateDate",
-                            "Step": 7,
-                            "Unit": "Days"
+                            "Step": ${AccessKeyExpirationTimeInSeconds},
+                            "Unit": "Seconds"
                           },
                           "Retry": [
                             {
