@@ -30,6 +30,7 @@ jobs:
             ./.aws-sam/build/**
             ./samconfig.toml
             ./statemachine/**
+            ./LICENSE
 
   sam-publish:
 
