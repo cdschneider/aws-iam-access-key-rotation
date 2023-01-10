@@ -28,6 +28,10 @@ jobs:
           name: sam-build
           path: |
             ./.aws-sam/build/**
+            ./samconfig.toml
+            ./statemachine/**
+            ./LICENSE
+            ./README.md
 
   sam-deploy:
 
@@ -44,12 +48,10 @@ jobs:
           role-duration-seconds: 900
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/checkout@v3
-      - name: Download sam-build artifacts
+      - name: Download sam-build artifacts  
         uses: actions/download-artifact@v3
         with:
           name: sam-build
-      - run: ls -alt
       - uses: actions/setup-python@v3
         with:
           python-version: '3.8'
