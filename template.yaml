@@ -61,11 +61,13 @@ Resources:
   StatesDateTimeAddFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/States.DateTimeAdd/
-      Handler: States.DateTimeAdd::States.DateTimeAdd.Function::FunctionHandler
-      Runtime: dotnet6
+      CodeUri: ./src/States.DateTimeAdd.Net7/
+      Handler: 'bootstrap'
+      Runtime: 'provided.al2'
       Architectures:
         - x86_64
+    Metadata:
+      BuildMethod: 'dotnet7'
 
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
