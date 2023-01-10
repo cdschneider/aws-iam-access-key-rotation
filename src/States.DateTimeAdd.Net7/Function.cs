@@ -7,6 +7,12 @@ namespace States.DateTimeAdd.Net7;
 
 public class Function
 {
+    private static States.DateTimeAdd.Function Handler { get; }
+    static Function()
+    {
+        Handler = new States.DateTimeAdd.Function();
+    }
+    
     /// <summary>
     /// The main entry point for the Lambda function. The main function is called once during the Lambda init phase. It
     /// initializes the .NET Lambda runtime client passing in the function handler to invoke for each Lambda event and
@@ -14,7 +20,7 @@ public class Function
     /// </summary>
     private static async Task Main()
     {
-        Func<string, ILambdaContext, string> handler = FunctionHandler;
+        Func<DateTimeAddRequest, ILambdaContext, DateTime> handler = FunctionHandler;
         await LambdaBootstrapBuilder.Create(handler, new SourceGeneratorLambdaJsonSerializer<LambdaFunctionJsonSerializerContext>())
             .Build()
             .RunAsync();
@@ -39,9 +45,9 @@ public class Function
     /// <param name="input"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    public static string FunctionHandler(string input, ILambdaContext context)
+    public static DateTime FunctionHandler(DateTimeAddRequest input, ILambdaContext context)
     {
-        return input.ToUpper();
+        return Handler.FunctionHandler(input, context);
     }
 }
 
