@@ -49,6 +49,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: sam-build
+      - run: ls -alt
       - uses: actions/setup-python@v3
         with:
           python-version: '3.8'
