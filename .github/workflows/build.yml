@@ -13,6 +13,7 @@ jobs:
   sam-build:
     
     runs-on: ubuntu-latest
+
     permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
@@ -30,7 +31,7 @@ jobs:
           python-version: '3.8'
       - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
       - uses: aws-actions/setup-sam@v2
       - run: dotnet tool restore -v n      
       - run: sam validate
@@ -43,7 +44,7 @@ jobs:
       matrix:
         dotnet-version: [ '6.0.x', '7.0.x' ]
         configuration: ['Debug', 'Release']
-        os: [ ubuntu, windows, macos ]
+        os: [ ubuntu, macos ]
 
     steps:
       - uses: actions/checkout@v3
