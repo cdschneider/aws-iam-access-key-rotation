@@ -38,11 +38,12 @@ jobs:
   
   dotnet-build:
     
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        dotnet-version: [ '6.0.x' ]
+        dotnet-version: [ '6.0.x', '7.0.x' ]
         configuration: ['Debug', 'Release']
+        os: [ ubuntu, windows, macos ]
 
     steps:
       - uses: actions/checkout@v3
