@@ -54,6 +54,8 @@ Resources:
         - !Ref StepFunctionsLoggingPolicy
         - LambdaInvokePolicy:
             FunctionName: !Ref StatesDateTimeAddFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref StatesDateTimeAddFunctionAOT
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
