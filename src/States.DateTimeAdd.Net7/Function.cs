@@ -2,6 +2,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using System.Text.Json.Serialization;
+using States.DateTimeAdd.Serialization;
 
 namespace States.DateTimeAdd.Net7;
 
@@ -21,7 +22,10 @@ public class Function
     private static async Task Main()
     {
         Func<DateTimeAddRequest, ILambdaContext, DateTime> handler = FunctionHandler;
-        await LambdaBootstrapBuilder.Create(handler, new SourceGeneratorLambdaJsonSerializer<LambdaFunctionJsonSerializerContext>())
+        await LambdaBootstrapBuilder.Create(handler, 
+                new SourceGeneratorLambdaJsonSerializer<LambdaFunctionJsonSerializerContext>(
+                    CustomLambdaSerializer.CreateCustomizer()
+                ))
             .Build()
             .RunAsync();
     }
