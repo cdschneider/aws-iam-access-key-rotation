@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "States.DateTimeAdd", "src\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "States.DateTimeAdd.Tests", "tests\States.DateTimeAdd.Tests\States.DateTimeAdd.Tests.csproj", "{9326741C-11AA-49D3-80BB-9ACEA1E3701F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "States.DateTimeAdd.Net7", "src\States.DateTimeAdd.Net7\States.DateTimeAdd.Net7.csproj", "{75A15EDF-D386-40CD-99C9-2677587D54DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{9326741C-11AA-49D3-80BB-9ACEA1E3701F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9326741C-11AA-49D3-80BB-9ACEA1E3701F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9326741C-11AA-49D3-80BB-9ACEA1E3701F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

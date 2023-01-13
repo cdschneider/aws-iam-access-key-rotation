@@ -57,7 +57,8 @@ Resources:
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
-
+  
+  
   StatesDateTimeAddFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -66,6 +67,17 @@ Resources:
       Runtime: dotnet6
       Architectures:
         - x86_64
+
+  StatesDateTimeAddFunctionAOT:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/States.DateTimeAdd.Net7/
+      Handler: 'bootstrap'
+      Runtime: 'provided.al2'
+      Architectures:
+        - x86_64
+    Metadata:
+      BuildMethod: 'dotnet7'
 
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
