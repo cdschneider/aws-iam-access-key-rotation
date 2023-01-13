@@ -57,8 +57,18 @@ Resources:
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
-
+  
+  
   StatesDateTimeAddFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/States.DateTimeAdd/
+      Handler: States.DateTimeAdd::States.DateTimeAdd.Function::FunctionHandler
+      Runtime: dotnet6
+      Architectures:
+        - x86_64
+
+  StatesDateTimeAddFunctionAOT:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./src/States.DateTimeAdd.Net7/
