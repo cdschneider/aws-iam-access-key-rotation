@@ -100,7 +100,7 @@
                           "Parameters": {
                             "Value.$": "$.CreateDate",
                             "Step": ${AccessKeyExpirationTimeInSeconds},
-                            "Unit": "Seconds"
+                            "Unit": 2
                           },
                           "Retry": [
                             {

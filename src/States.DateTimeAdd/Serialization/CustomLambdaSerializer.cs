@@ -8,7 +8,7 @@ public class CustomLambdaSerializer : DefaultLambdaJsonSerializer
 {
     public CustomLambdaSerializer() : base(CreateCustomizer()) { }
 
-    public static Action<JsonSerializerOptions> CreateCustomizer()
+    private static Action<JsonSerializerOptions> CreateCustomizer()
     {
         return (JsonSerializerOptions options) =>
         {
