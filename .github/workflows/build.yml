@@ -44,7 +44,7 @@ jobs:
       matrix:
         dotnet-version: [ '6.0.x', '7.0.x' ]
         configuration: ['Debug', 'Release']
-        os: [ ubuntu, macos ]
+        os: [ ubuntu ]
 
     steps:
       - uses: actions/checkout@v3
