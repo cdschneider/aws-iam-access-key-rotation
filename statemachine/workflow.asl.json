@@ -9,18 +9,10 @@
         {
           "Variable": "$.Marker",
           "IsPresent": true,
-          "Next": "Set results Marker"
+          "Next": "ListUsers (w Marker)"
         }
       ],
-      "Default": "ListUsers"
-    },
-    "Set results Marker": {
-      "Type": "Pass",
-      "Next": "ListUsers (w Marker)",
-      "ResultPath": "$",
-      "Parameters": {
-        "Marker.$": "$.Marker"
-      }
+      "Default": "Get AccessKey cutoff time"
     },
     "ListUsers (w Marker)": {
       "Type": "Task",
@@ -28,12 +20,38 @@
       "Parameters": {
         "Marker.$": "$.Marker"
       },
-      "Resource": "arn:aws:states:::aws-sdk:iam:listUsers"
+      "Resource": "arn:aws:states:::aws-sdk:iam:listUsers",
+      "ResultPath": "$.ListUsersResult"
+    },
+    "Get AccessKey cutoff time": {
+      "Type": "Task",
+      "Resource": "${StatesDateTimeAddFunctionArn}",
+      "Parameters": {
+        "Value.$": "$$.Execution.StartTime",
+        "Step": -${AccessKeyExpirationTimeInSeconds},
+        "Unit": 2
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 6,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Next": "ListUsers",
+      "ResultPath": "$.EarliestAccessKeyCreationTime"
     },
     "ListUsers": {
       "Type": "Task",
       "Parameters": {},
       "Resource": "arn:aws:states:::aws-sdk:iam:listUsers",
+      "ResultPath": "$.ListUsersResult",
       "Next": "Parallel"
     },
     "Parallel": {
@@ -51,6 +69,7 @@
                   "Next": "Step Functions StartExecution"
                 }
               ],
+              "InputPath": "$.ListUsersResult",
               "Default": "Has more results? finish"
             },
             "Has more results? finish": {
@@ -81,54 +100,34 @@
                   "ListAccessKeys": {
                     "Type": "Task",
                     "Parameters": {
-                      "UserName.$": "$.UserName"
+                      "UserName.$": "$.User.UserName"
                     },
                     "Resource": "arn:aws:states:::aws-sdk:iam:listAccessKeys",
-                    "ResultPath": "$",
+                    "ResultPath": "$.ListAccessKeysResult",
                     "Next": "For each AccessKey"
                   },
                   "For each AccessKey": {
                     "Type": "Map",
-                    "ItemsPath": "$.AccessKeyMetadata",
+                    "ItemsPath": "$.ListAccessKeysResult.AccessKeyMetadata",
+                    "ItemSelector": {
+                      "AccessKey.$": "$$.Map.Item.Value",
+                      "CutoffTime.$": "$.CutoffTime"
+                    },
                     "End": true,
                     "Iterator": {
-                      "StartAt": "Get AccessKey expiration date",
+                      "StartAt": "Check Dates",
                       "States": {
-                        "Get AccessKey expiration date": {
-                          "Type": "Task",
-                          "Resource": "${StatesDateTimeAddFunctionArn}",
-                          "Parameters": {
-                            "Value.$": "$.CreateDate",
-                            "Step": ${AccessKeyExpirationTimeInSeconds},
-                            "Unit": 2
-                          },
-                          "Retry": [
-                            {
-                              "ErrorEquals": [
-                                "Lambda.ServiceException",
-                                "Lambda.AWSLambdaException",
-                                "Lambda.SdkClientException",
-                                "Lambda.TooManyRequestsException"
-                              ],
-                              "IntervalSeconds": 1,
-                              "MaxAttempts": 6,
-                              "BackoffRate": 2.0
-                            }
-                          ],
-                          "Next": "Check Dates",
-                          "ResultPath": "$.ExpiryDate"
-                        },
                         "Check Dates": {
                           "Type": "Choice",
                           "Choices": [
                             {
                               "And": [
                                 {
-                                  "Variable": "$.ExpiryDate",
-                                  "TimestampLessThanEqualsPath": "$$.Execution.StartTime"
+                                  "Variable": "$.AccessKey.CreateDate",
+                                  "TimestampLessThanEqualsPath": "$.CutoffTime"
                                 },
                                 {
-                                  "Variable": "$.Status",
+                                  "Variable": "$.AccessKey.Status",
                                   "StringEquals": "Active"
                                 }
                               ],
@@ -145,6 +144,7 @@
                             "UserName.$": "$.UserName",
                             "Status": "Inactive"
                           },
+                          "InputPath": "$.AccessKey",
                           "Resource": "arn:aws:states:::aws-sdk:iam:updateAccessKey",
                           "ResultPath": null
                         },
@@ -156,7 +156,11 @@
                   }
                 }
               },
-              "ItemsPath": "$.Users",
+              "ItemsPath": "$.ListUsersResult.Users",
+              "ItemSelector": {
+                "User.$": "$$.Map.Item.Value",
+                "CutoffTime.$": "$.EarliestAccessKeyCreationTime"
+              },
               "ResultPath": null,
               "End": true
             }
