@@ -26,7 +26,7 @@ jobs:
           role-duration-seconds: 900
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
       - uses: actions/setup-dotnet@v3
