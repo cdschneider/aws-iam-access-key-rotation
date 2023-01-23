@@ -9,6 +9,7 @@ stack_name = "aws-access-key-expiry"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1e89st9r1pcd9"
 s3_prefix = "aws-access-key-expiry"
 confirm_changeset = false
+fail_on_empty_changeset = false
 force_upload = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
