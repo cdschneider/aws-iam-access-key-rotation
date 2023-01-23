@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "States.DateTimeAdd.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "States.DateTimeAdd.Net7", "src\States.DateTimeAdd.Net7\States.DateTimeAdd.Net7.csproj", "{75A15EDF-D386-40CD-99C9-2677587D54DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyRotation", "src\AccessKeyRotation\AccessKeyRotation.csproj", "{A2197FDA-E50D-4334-98BE-34E059E021F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyRotation.Tests", "tests\AccessKeyRotation.Tests\AccessKeyRotation.Tests.csproj", "{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75A15EDF-D386-40CD-99C9-2677587D54DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2197FDA-E50D-4334-98BE-34E059E021F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2197FDA-E50D-4334-98BE-34E059E021F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2197FDA-E50D-4334-98BE-34E059E021F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2197FDA-E50D-4334-98BE-34E059E021F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
