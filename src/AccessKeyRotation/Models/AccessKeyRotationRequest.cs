@@ -1,4 +1,4 @@
-namespace AccessKeyRotation;
+namespace AccessKeyRotation.Models;
 
 public class AccessKeyRotationRequest
 {

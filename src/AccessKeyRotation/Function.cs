@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AccessKeyRotation.Extensions;
+using AccessKeyRotation.Models;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Lambda.Core;
