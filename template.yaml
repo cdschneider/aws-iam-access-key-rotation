@@ -58,6 +58,15 @@ Resources:
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
 
+  AccessKeyRotationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/AccessKeyRotation/
+      Handler: 'AccessKeyRotation::AccessKeyRotation.Function::FunctionHandler'
+      Runtime: 'dotnet6'
+      Architectures:
+        - x86_64
+
   StatesDateTimeAddFunctionAOT:
     Type: AWS::Serverless::Function
     Properties:
