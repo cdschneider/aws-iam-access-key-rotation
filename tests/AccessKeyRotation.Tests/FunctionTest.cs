@@ -1,5 +1,10 @@
 using AccessKeyRotation.Models;
+using AccessKeyRotation.Tests.Extensions;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
+using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
+using Amazon.Runtime;
 using Moq.AutoMock;
 using Xunit;
 
@@ -15,17 +20,23 @@ public class FunctionTest
         _classUnderTest = mocker.CreateInstance<Function>();
     }
 
+    [Fact]
+    public Task TestFunctionHandler_WhenInputIsNull_ThenArgumentNullExceptionIsThrown()
+        => Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _classUnderTest.FunctionHandler(null!, GivenTestLambdaContext()));
+
     [Theory]
     [MemberData(nameof(InvalidFunctionHandlerInputs))]
     public Task TestFunctionHandler_WhenInputIncludesNullFields_ThenArgumentExceptionIsThrown(AccessKeyRotationRequest input)
         => Assert.ThrowsAsync<ArgumentException>(() => 
-            _classUnderTest.FunctionHandler(input, new TestLambdaContext()));
+            _classUnderTest.FunctionHandler(input, GivenTestLambdaContext()));
 
+    private static ILambdaContext GivenTestLambdaContext() => new TestLambdaContext().WithFunctionArn();
+    
     public static IEnumerable<object[]> InvalidFunctionHandlerInputs =>
         new List<object[]>
         {
-            new object[] { (null as AccessKeyRotationRequest)! },
-            new object[] { new AccessKeyRotationRequest { UserName = "username_456" } },
-            new object[] { new AccessKeyRotationRequest { AccessKeyId = "access_key123" } },
+            new object[] { new AccessKeyRotationRequest { UserName = "only_a_username" } },
+            new object[] { new AccessKeyRotationRequest { AccessKeyId = "only_an_access_key" } },
         };
 }

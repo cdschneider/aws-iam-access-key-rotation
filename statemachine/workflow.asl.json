@@ -28,7 +28,7 @@
       "Resource": "${StatesDateTimeAddFunctionArn}",
       "Parameters": {
         "Value.$": "$$.Execution.StartTime",
-        "Step": -${AccessKeyExpirationTimeInSeconds},
+        "Step": -100,
         "Unit": 2
       },
       "Retry": [
@@ -94,74 +94,43 @@
           "States": {
             "Map": {
               "Type": "Map",
-              "Iterator": {
+              "ItemsPath": "$.ListUsersResult.Users",
+              "ItemProcessor": {
                 "StartAt": "ListAccessKeys",
                 "States": {
                   "ListAccessKeys": {
                     "Type": "Task",
                     "Parameters": {
-                      "UserName.$": "$.User.UserName"
+                      "UserName.$": "$.UserName"
                     },
                     "Resource": "arn:aws:states:::aws-sdk:iam:listAccessKeys",
                     "ResultPath": "$.ListAccessKeysResult",
-                    "Next": "For each AccessKey"
+                    "Next": "Get Key Actions"
                   },
-                  "For each AccessKey": {
-                    "Type": "Map",
-                    "ItemsPath": "$.ListAccessKeysResult.AccessKeyMetadata",
-                    "ItemSelector": {
-                      "AccessKey.$": "$$.Map.Item.Value",
-                      "CutoffTime.$": "$.CutoffTime"
-                    },
-                    "End": true,
-                    "Iterator": {
-                      "StartAt": "Check Dates",
-                      "States": {
-                        "Check Dates": {
-                          "Type": "Choice",
-                          "Choices": [
-                            {
-                              "And": [
-                                {
-                                  "Variable": "$.AccessKey.CreateDate",
-                                  "TimestampLessThanEqualsPath": "$.CutoffTime"
-                                },
-                                {
-                                  "Variable": "$.AccessKey.Status",
-                                  "StringEquals": "Active"
-                                }
-                              ],
-                              "Next": "UpdateAccessKey"
-                            }
-                          ],
-                          "Default": "Check Dates finish"
-                        },
-                        "UpdateAccessKey": {
-                          "Type": "Task",
-                          "End": true,
-                          "Parameters": {
-                            "AccessKeyId.$": "$.AccessKeyId",
-                            "UserName.$": "$.UserName",
-                            "Status": "Inactive"
-                          },
-                          "InputPath": "$.AccessKey",
-                          "Resource": "arn:aws:states:::aws-sdk:iam:updateAccessKey",
-                          "ResultPath": null
-                        },
-                        "Check Dates finish": {
-                          "Type": "Succeed"
-                        }
+                  "Get Key Actions": {
+                    "Type": "Task",
+                    "Resource": "${AccessKeyActionsFunctionArn}",
+                    "InputPath": "$.ListAccessKeysResult.AccessKeyMetadata",
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "Lambda.ServiceException",
+                          "Lambda.AWSLambdaException",
+                          "Lambda.SdkClientException",
+                          "Lambda.TooManyRequestsException"
+                        ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 6,
+                        "BackoffRate": 2.0
                       }
-                    }
+                    ],
+                    "ResultPath": "$",
+                    "End": true
                   }
                 }
               },
-              "ItemsPath": "$.ListUsersResult.Users",
-              "ItemSelector": {
-                "User.$": "$$.Map.Item.Value",
-                "CutoffTime.$": "$.EarliestAccessKeyCreationTime"
-              },
-              "ResultPath": null,
+              "ResultPath": "$.Users",
+              "OutputPath": "$.Users",
               "End": true
             }
           }

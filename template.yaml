@@ -31,6 +31,7 @@ Resources:
       DefinitionUri: statemachine/workflow.asl.json
       DefinitionSubstitutions:
         StatesDateTimeAddFunctionArn: !GetAtt StatesDateTimeAddFunctionAOT.Arn
+        AccessKeyActionsFunctionArn: !GetAtt AccessKeyActionsFunction.Arn
         AccessKeyExpirationTimeInSeconds: !Ref AccessKeyTTL
       Type: EXPRESS
       Tracing:
@@ -57,6 +58,15 @@ Resources:
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
+
+  AccessKeyActionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/AccessKeyActions/
+      Handler: 'AccessKeyActions::AccessKeyActions.Function::FunctionHandler'
+      Runtime: 'dotnet6'
+      Architectures:
+        - x86_64
 
   AccessKeyRotationFunction:
     Type: AWS::Serverless::Function
