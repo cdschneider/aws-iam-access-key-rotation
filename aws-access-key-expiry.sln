@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyRotation", "src\Ac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyRotation.Tests", "tests\AccessKeyRotation.Tests\AccessKeyRotation.Tests.csproj", "{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyActions", "src\AccessKeyActions\AccessKeyActions.csproj", "{B9A1BFA9-DCDA-4D22-8EA5-3112598AF60E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyActions.Tests", "tests\AccessKeyActions.Tests\AccessKeyActions.Tests.csproj", "{BC30979E-D740-4305-8808-462CDDA9DEFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +46,13 @@ Global
 		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B72A4FE-A3F0-419D-94A5-D5F6269ED9DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9A1BFA9-DCDA-4D22-8EA5-3112598AF60E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9A1BFA9-DCDA-4D22-8EA5-3112598AF60E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9A1BFA9-DCDA-4D22-8EA5-3112598AF60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9A1BFA9-DCDA-4D22-8EA5-3112598AF60E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

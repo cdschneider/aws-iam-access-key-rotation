@@ -30,7 +30,12 @@ public class Function
             ""Principal"": {
                 ""AWS"": ""arn:aws:iam::{0}:user/{1}""
             },
-            ""Action"": ""secretsmanager:GetSecretValue"",
+            ""Action"": [
+                ""secretsmanager:GetSecretValue"",
+                ""secretsmanager:DescribeSecret"",
+                ""secretsmanager:ListSecretVersionIds"",
+                ""secretsmanager:ListSecrets""
+            ]
             ""Resource"": ""*""
         }
     ]
@@ -51,11 +56,17 @@ public class Function
     
     public async Task FunctionHandler(AccessKeyRotationRequest input, ILambdaContext context)
     {
-        var secretName = string.Format(SecretNameFormat, input.UserName);
-        
+        if (input == null) throw new ArgumentNullException(nameof(input));
+        if (string.IsNullOrEmpty(input.UserName))
+            throw new ArgumentException("UserName cannot be empty or null", nameof(input.UserName));
+        if (string.IsNullOrEmpty(input.AccessKeyId))
+            throw new ArgumentException("AccessKeyId cannot be empty or null", nameof(input.AccessKeyId));
+
         _logger.LogDebug("Executing CreateAccessKey for {username}", input.UserName);
         var newAccessKey = await _iamService.CreateAccessKeyAsync(
             new CreateAccessKeyRequest { UserName = input.UserName });
+        
+        var secretName = string.Format(SecretNameFormat, input.UserName);
         var secretString = JsonSerializer.Serialize(newAccessKey.AccessKey);
 
         try
@@ -73,7 +84,7 @@ public class Function
             var secretReq = new CreateSecretRequest { Name = string.Format(SecretNameFormat, input.UserName), SecretString = secretString };
             var createdSecret = await _secretsManager.CreateSecretAsync(secretReq);
             
-            _logger.LogDebug("Successfully created Secret {secretName}", secretName);
+            _logger.LogDebug("Successfully created Secret {secretName}", createdSecret.Name);
         }
 
         _logger.LogInformation("AccessKey has been generated for {username} and stored as {secretName}", input.UserName, secretName);
