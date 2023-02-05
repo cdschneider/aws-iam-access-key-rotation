@@ -12,6 +12,7 @@ public class CustomLambdaSerializer : DefaultLambdaJsonSerializer
     {
         return (JsonSerializerOptions options) =>
         {
+            options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
             options.Converters.Add(new StatusTypeConverter());
         };
     }

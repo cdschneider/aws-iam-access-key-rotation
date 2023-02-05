@@ -32,6 +32,7 @@ Resources:
       DefinitionSubstitutions:
         StatesDateTimeAddFunctionArn: !GetAtt StatesDateTimeAddFunctionAOT.Arn
         AccessKeyActionsFunctionArn: !GetAtt AccessKeyActionsFunction.Arn
+        AccessKeyRotationFunctionArn: !GetAtt AccessKeyRotationFunction.Arn
         AccessKeyExpirationTimeInSeconds: !Ref AccessKeyTTL
       Type: EXPRESS
       Tracing:
@@ -54,7 +55,9 @@ Resources:
         - !Ref StepFunctionsTracingPolicy
         - !Ref StepFunctionsLoggingPolicy
         - LambdaInvokePolicy:
-            FunctionName: !Ref StatesDateTimeAddFunctionAOT
+            FunctionName: !Ref AccessKeyActionsFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AccessKeyRotationFunction
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
