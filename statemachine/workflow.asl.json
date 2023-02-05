@@ -12,7 +12,7 @@
           "Next": "ListUsers (w Marker)"
         }
       ],
-      "Default": "Get AccessKey cutoff time"
+      "Default": "ListUsers"
     },
     "ListUsers (w Marker)": {
       "Type": "Task",
@@ -22,30 +22,6 @@
       },
       "Resource": "arn:aws:states:::aws-sdk:iam:listUsers",
       "ResultPath": "$.ListUsersResult"
-    },
-    "Get AccessKey cutoff time": {
-      "Type": "Task",
-      "Resource": "${StatesDateTimeAddFunctionArn}",
-      "Parameters": {
-        "Value.$": "$$.Execution.StartTime",
-        "Step": -100,
-        "Unit": 2
-      },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 6,
-          "BackoffRate": 2.0
-        }
-      ],
-      "Next": "ListUsers",
-      "ResultPath": "$.EarliestAccessKeyCreationTime"
     },
     "ListUsers": {
       "Type": "Task",
@@ -124,13 +100,87 @@
                         "BackoffRate": 2.0
                       }
                     ],
-                    "ResultPath": "$",
+                    "ResultPath": "$.GetKeyActionsResult",
+                    "Next": "Execute Key Actions"
+                  },
+                  "Execute Key Actions": {
+                    "Type": "Map",
+                    "ItemsPath": "$.GetKeyActionsResult",
+                    "ItemSelector": {
+                      "UserName.$": "$.UserName",
+                      "KeyAction.$": "$$.Map.Item.Value"
+                    },
+                    "ItemProcessor": {
+                      "StartAt": "Branch Key Action",
+                      "States": {
+                        "Branch Key Action": {
+                          "Type": "Choice",
+                          "Choices": [
+                            {
+                              "Variable": "$.KeyAction.Action",
+                              "StringEquals": "Rotate",
+                              "Next": "Rotate Access Key"
+                            },
+                            {
+                              "Variable": "$.KeyAction.Action",
+                              "StringEquals": "Deactivate",
+                              "Next": "Deactivate Access Key"
+                            },
+                            {
+                              "Variable": "$.KeyAction.Action",
+                              "StringEquals": "Delete",
+                              "Next": "Delete Access Key"
+                            }
+                          ]
+                        },
+                        "Delete Access Key": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::aws-sdk:iam:deleteAccessKey",
+                          "Parameters": {
+                            "AccessKeyId.$": "$.KeyAction.AccessKeyId"
+                          },
+                          "End": true
+                        },
+                        "Rotate Access Key": {
+                          "Type": "Task",
+                          "Resource": "${AccessKeyRotationFunctionArn}",
+                          "Parameters": {
+                            "AccessKeyId.$": "$.KeyAction.AccessKeyId",
+                            "UserName.$": "$.UserName"
+                          },
+                          "Retry": [
+                            {
+                              "ErrorEquals": [
+                                "Lambda.ServiceException",
+                                "Lambda.AWSLambdaException",
+                                "Lambda.SdkClientException",
+                                "Lambda.TooManyRequestsException"
+                              ],
+                              "IntervalSeconds": 1,
+                              "MaxAttempts": 6,
+                              "BackoffRate": 2.0
+                            }
+                          ],
+                          "End": true
+                        },
+                        "Deactivate Access Key": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::aws-sdk:iam:updateAccessKey",
+                          "Parameters": {
+                            "AccessKeyId.$": "$.KeyAction.AccessKeyId",
+                            "UserName.$": "$.UserName",
+                            "Status": "Inactive"
+                          },
+                          "ResultPath": null,
+                          "End": true
+                        }
+                      }
+                    },
                     "End": true
                   }
                 }
               },
-              "ResultPath": "$.Users",
-              "OutputPath": "$.Users",
+              "ResultPath": null,
               "End": true
             }
           }
