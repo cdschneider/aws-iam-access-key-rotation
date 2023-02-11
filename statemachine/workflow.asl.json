@@ -176,6 +176,7 @@
                         }
                       }
                     },
+                    "ResultPath": null,
                     "End": true
                   }
                 }

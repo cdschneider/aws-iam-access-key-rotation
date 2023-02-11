@@ -3,6 +3,7 @@ using AccessKeyRotation.Extensions;
 using AccessKeyRotation.Models;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
+using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
@@ -20,27 +21,6 @@ public class Function
     private readonly IAmazonIdentityManagementService _iamService;
     private readonly ILogger<Function> _logger;
 
-    private static readonly string SecretNameFormat = "iam/{0}/accesskey";
-    private static readonly string PolicyDocumentFormat = @"
-{
-    ""Version"": ""2012-10-17"",
-    ""Statement"": [
-        {
-            ""Effect"": ""Allow"",
-            ""Principal"": {
-                ""AWS"": ""arn:aws:iam::{0}:user/{1}""
-            },
-            ""Action"": [
-                ""secretsmanager:GetSecretValue"",
-                ""secretsmanager:DescribeSecret"",
-                ""secretsmanager:ListSecretVersionIds"",
-                ""secretsmanager:ListSecrets""
-            ]
-            ""Resource"": ""*""
-        }
-    ]
-}";
-
     public Function(IAmazonSecretsManager secretsManager, IAmazonIdentityManagementService iamService,
         ILogger<Function> logger)
     {
@@ -54,6 +34,7 @@ public class Function
         }
     }
     
+    [LambdaFunction]
     public async Task FunctionHandler(AccessKeyRotationRequest input, ILambdaContext context)
     {
         if (input == null) throw new ArgumentNullException(nameof(input));
@@ -66,7 +47,7 @@ public class Function
         var newAccessKey = await _iamService.CreateAccessKeyAsync(
             new CreateAccessKeyRequest { UserName = input.UserName });
         
-        var secretName = string.Format(SecretNameFormat, input.UserName);
+        var secretName = string.Format(Constants.SecretNameFormat, input.UserName);
         var secretString = JsonSerializer.Serialize(newAccessKey.AccessKey);
 
         try
@@ -78,10 +59,10 @@ public class Function
             _logger.LogDebug("Executing UpdateSecret on {secretName} with AccessKey details", currentSecret.Name);
             await _secretsManager.UpdateSecretAsync(new UpdateSecretRequest { SecretId = currentSecret.Name, SecretString = secretString });
         }
-        catch (ResourceNotFoundException ex)
+        catch (ResourceNotFoundException)
         {
             _logger.LogWarning("Secret with name {name} does not exist", secretName);
-            var secretReq = new CreateSecretRequest { Name = string.Format(SecretNameFormat, input.UserName), SecretString = secretString };
+            var secretReq = new CreateSecretRequest { Name = string.Format(Constants.SecretNameFormat, input.UserName), SecretString = secretString };
             var createdSecret = await _secretsManager.CreateSecretAsync(secretReq);
             
             _logger.LogDebug("Successfully created Secret {secretName}", createdSecret.Name);
@@ -90,7 +71,7 @@ public class Function
         _logger.LogInformation("AccessKey has been generated for {username} and stored as {secretName}", input.UserName, secretName);
         
         var functionArn = context.FunctionArn();
-        var secretPolicy = string.Format(PolicyDocumentFormat, functionArn.AccountId, input.UserName);
+        var secretPolicy = string.Format(Constants.PolicyDocumentFormat, functionArn.AccountId, input.UserName);
         
         if (_logger.IsEnabled(LogLevel.Debug))
         {

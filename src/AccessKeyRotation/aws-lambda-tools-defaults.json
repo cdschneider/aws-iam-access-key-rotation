@@ -12,5 +12,5 @@
   "function-runtime": "dotnet6",
   "function-memory-size": 256,
   "function-timeout": 30,
-  "function-handler": "AccessKeyRotation::AccessKeyRotation.Function::FunctionHandler"
+  "function-handler": "AccessKeyRotation::AccessKeyRotation.Function_FunctionHandler_Generated::FunctionHandler"
 }
