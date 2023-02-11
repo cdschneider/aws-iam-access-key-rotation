@@ -1,3 +1,4 @@
+using AccessKeyActions.Configuration;
 using Amazon.DynamoDBv2;
 using Amazon.IdentityManagement;
 using Microsoft.Extensions.Configuration;
@@ -17,12 +18,9 @@ public class Startup
             .AddEnvironmentVariables()
             .Build();
         
-        // Custom Services
+        // Core Services
         services.AddSingleton<IFunctionConfiguration, FunctionConfiguration>();
-        
-        // AWS Services
-        //services.AddAWSService<IAmazonIdentityManagementService>();
-        
+
         // Logging
         services.AddLogging(loggingBuilder =>
         {

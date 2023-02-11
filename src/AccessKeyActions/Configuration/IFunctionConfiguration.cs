@@ -1,4 +1,4 @@
-namespace AccessKeyActions;
+namespace AccessKeyActions.Configuration;
 
 public interface IFunctionConfiguration
 {
@@ -19,15 +19,4 @@ public interface IFunctionConfiguration
     /// </summary>
     /// <returns></returns>
     TimeSpan AccessKeyRecoveryWindow();
-}
-
-public class FunctionConfiguration : IFunctionConfiguration
-{
-    public FunctionConfiguration() { }
-    
-    public TimeSpan AccessKeyRotationWindow() => TimeSpan.FromDays(90);
-
-    public TimeSpan AccessKeyInstallationWindow() => TimeSpan.FromDays(10);
-
-    public TimeSpan AccessKeyRecoveryWindow() => TimeSpan.FromDays(10);
 }
