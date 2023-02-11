@@ -19,6 +19,7 @@ public class Startup
             .Build();
         
         // Core Services
+        services.AddSingleton<IConfiguration>(config);
         services.AddSingleton<IFunctionConfiguration, FunctionConfiguration>();
 
         // Logging
