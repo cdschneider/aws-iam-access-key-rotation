@@ -30,10 +30,8 @@ Resources:
     Properties:
       DefinitionUri: statemachine/workflow.asl.json
       DefinitionSubstitutions:
-        StatesDateTimeAddFunctionArn: !GetAtt StatesDateTimeAddFunctionAOT.Arn
         AccessKeyActionsFunctionArn: !GetAtt AccessKeyActionsFunction.Arn
         AccessKeyRotationFunctionArn: !GetAtt AccessKeyRotationFunction.Arn
-        AccessKeyExpirationTimeInSeconds: !Ref AccessKeyTTL
       Type: EXPRESS
       Tracing:
         Enabled: True

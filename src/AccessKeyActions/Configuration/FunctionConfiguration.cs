@@ -1,18 +1,26 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AccessKeyActions.Configuration;
 
 public class FunctionConfiguration : IFunctionConfiguration
 {
     private readonly IConfiguration _configuration;
-
-    private static readonly string KeyRotationConfigurationKey = "";
-    private static readonly string KeyInstallationConfigurationKey = "";
-    private static readonly string KeyRecoveryConfigurationKey = "";
+    private readonly ILogger<FunctionConfiguration> _logger;
     
-    public FunctionConfiguration(IConfiguration configuration)
+    private static readonly string KeyRotationConfigurationKey = "Function:KeyRotation";
+    private static readonly string KeyInstallationConfigurationKey = "Function:KeyInstallation";
+    private static readonly string KeyRecoveryConfigurationKey = "Function:KeyRecovery";
+    
+    public FunctionConfiguration(IConfiguration configuration, ILogger<FunctionConfiguration> logger)
     {
         _configuration = configuration;
+        _logger = logger;
+        
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Initializing new instance of FunctionConfiguration()");
+        }
     }
 
     public TimeSpan AccessKeyRotationWindow()
