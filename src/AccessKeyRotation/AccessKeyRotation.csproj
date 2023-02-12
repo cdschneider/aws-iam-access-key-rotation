@@ -14,7 +14,7 @@
     <PackageReference Include="Amazon.Lambda.Annotations" Version="0.10.0-preview" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.3.0" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.2" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.3" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.100.59" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.101.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
