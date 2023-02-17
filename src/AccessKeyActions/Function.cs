@@ -43,21 +43,21 @@ public class Function
         
         var result = new List<AccessKeyAction>();
 
-        foreach (var key in keys.Where(k => k.Status == StatusType.Inactive))
+        foreach (var key in keys.Where(k => k.Status == StatusType.Active))
         {
-            if (key.CreateDate < rotationCutoff - (installationWindow + recoveryWindow))
-            {
-                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Delete });
-            } 
-            else if (key.CreateDate < rotationCutoff - installationWindow)
+            if (key.CreateDate < rotationCutoff - installationWindow)
             {
                 result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
+            } 
+            else if (key.CreateDate < rotationCutoff)
+            {
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Rotate });
             } 
         }
         
         result.AddRange(
-            keys.Where(k => k.Status == StatusType.Active && k.CreateDate < rotationCutoff)
-                        .Select(k => new AccessKeyAction { AccessKeyId = k.AccessKeyId, Action = ActionType.Rotate }));
+            keys.Where(k => k.Status == StatusType.Inactive && k.CreateDate < rotationCutoff - (installationWindow + recoveryWindow))
+                        .Select(k => new AccessKeyAction { AccessKeyId = k.AccessKeyId, Action = ActionType.Delete }));
         
         return result;
     }
