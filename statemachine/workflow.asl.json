@@ -118,17 +118,17 @@
                           "Choices": [
                             {
                               "Variable": "$.KeyAction.Action",
-                              "StringEquals": "Rotate",
+                              "StringEquals": "rotate",
                               "Next": "Rotate Access Key"
                             },
                             {
                               "Variable": "$.KeyAction.Action",
-                              "StringEquals": "Deactivate",
+                              "StringEquals": "deactivate",
                               "Next": "Deactivate Access Key"
                             },
                             {
                               "Variable": "$.KeyAction.Action",
-                              "StringEquals": "Delete",
+                              "StringEquals": "delete",
                               "Next": "Delete Access Key"
                             }
                           ]

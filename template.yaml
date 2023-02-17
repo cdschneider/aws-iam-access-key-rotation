@@ -133,4 +133,5 @@ Resources:
           - Effect: Allow
             Action:
               - 'iam:UpdateAccessKey'
+              - 'iam:DeleteAccessKey'
             Resource: '*'
