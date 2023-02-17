@@ -47,11 +47,11 @@ public class Function
         {
             if (key.CreateDate < rotationCutoff - (installationWindow + recoveryWindow))
             {
-                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Delete });
             } 
             else if (key.CreateDate < rotationCutoff - installationWindow)
             {
-                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Delete });
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
             } 
         }
         
