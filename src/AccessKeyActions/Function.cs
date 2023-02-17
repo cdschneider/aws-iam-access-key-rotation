@@ -32,6 +32,33 @@ public class Function
     [LambdaFunction]
     public IList<AccessKeyAction> FunctionHandler(IList<AccessKey> keys, ILambdaContext context)
     {
-        return new List<AccessKeyAction>();
+        if (keys == null) throw new ArgumentNullException(nameof(keys));
+        if (keys.Count == 0)
+            return new List<AccessKeyAction>();
+
+        var now = DateTime.UtcNow;
+        var rotationCutoff = now - _configuration.AccessKeyRotationWindow();
+        var installationWindow = _configuration.AccessKeyInstallationWindow();
+        var recoveryWindow = _configuration.AccessKeyRecoveryWindow();
+        
+        var result = new List<AccessKeyAction>();
+
+        foreach (var key in keys.Where(k => k.Status == StatusType.Inactive))
+        {
+            if (key.CreateDate < rotationCutoff - (installationWindow + recoveryWindow))
+            {
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
+            } 
+            else if (key.CreateDate < rotationCutoff - installationWindow)
+            {
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Delete });
+            } 
+        }
+        
+        result.AddRange(
+            keys.Where(k => k.Status == StatusType.Active && k.CreateDate < rotationCutoff)
+                        .Select(k => new AccessKeyAction { AccessKeyId = k.AccessKeyId, Action = ActionType.Rotate }));
+        
+        return result;
     }
 }
