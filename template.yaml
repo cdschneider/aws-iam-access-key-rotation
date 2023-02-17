@@ -77,6 +77,9 @@ Resources:
       Runtime: 'dotnet6'
       Architectures:
         - x86_64
+      Policies:
+        - IAMFullAccess
+        - SecretsManagerReadWrite
 
   StatesDateTimeAddFunctionAOT:
     Type: AWS::Serverless::Function
