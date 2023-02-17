@@ -28,7 +28,7 @@ public class FunctionConfiguration : IFunctionConfiguration
         var keyRotationSeconds = _configuration.GetValue<long?>(KeyRotationConfigurationKey);
         if (keyRotationSeconds == null)
         {
-            return TimeSpan.FromDays(90);   
+            return TimeSpan.FromDays(30);   
         }
         
         return TimeSpan.FromSeconds(Convert.ToDouble(keyRotationSeconds));
