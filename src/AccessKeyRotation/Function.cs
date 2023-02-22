@@ -48,7 +48,8 @@ public class Function
             new CreateAccessKeyRequest { UserName = input.UserName });
         
         var secretName = string.Format(Constants.SecretNameFormat, input.UserName);
-        var secretString = JsonSerializer.Serialize(newAccessKey.AccessKey);
+        var secretString = JsonSerializer.Serialize(new { AccessKeyId = newAccessKey.AccessKey.AccessKeyId, 
+            SecretAccessKey = newAccessKey.AccessKey.SecretAccessKey});
 
         try
         {
