@@ -137,7 +137,8 @@
                           "Type": "Task",
                           "Resource": "arn:aws:states:::aws-sdk:iam:deleteAccessKey",
                           "Parameters": {
-                            "AccessKeyId.$": "$.KeyAction.AccessKeyId"
+                            "AccessKeyId.$": "$.KeyAction.AccessKeyId",
+                            "UserName.$": "$.UserName"
                           },
                           "End": true
                         },

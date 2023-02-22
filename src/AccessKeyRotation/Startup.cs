@@ -17,9 +17,8 @@ public class Startup
             .AddEnvironmentVariables()
             .Build();
         
-        // AWS Services
-        services.AddAWSService<IAmazonSecretsManager>();
-        services.AddAWSService<IAmazonIdentityManagementService>();
+        // Configuration
+        services.AddSingleton<IConfiguration>(config);
         
         // Logging
         services.AddLogging(builder =>
@@ -28,5 +27,9 @@ public class Startup
             builder.AddConfiguration(config.GetSection("Logging"));
             builder.AddJsonConsole();
         });
+        
+        // AWS Services
+        services.AddAWSService<IAmazonIdentityManagementService>();
+        services.AddAWSService<IAmazonSecretsManager>();
     }
 }
