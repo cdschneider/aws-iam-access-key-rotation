@@ -43,18 +43,25 @@ public class Function
         
         var result = new List<AccessKeyAction>();
 
-        result.AddRange(
-            keys.Where(k => k.Status == StatusType.Inactive && k.CreateDate < rotationCutoff - (installationWindow + recoveryWindow))
-                .Select(k => new AccessKeyAction { AccessKeyId = k.AccessKeyId, Action = ActionType.Delete }));
+        foreach (var key in keys.Where(k => k.Status == StatusType.Inactive))
+        {
+            if (key.CreateDate < rotationCutoff - (installationWindow + recoveryWindow))
+            {
+                _logger.LogInformation("AccessKey {accessKey} is being marked for deletion", key.AccessKeyId);
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Delete });
+            }
+        }
         
         foreach (var key in keys.Where(k => k.Status == StatusType.Active))
         {
             if (key.CreateDate < rotationCutoff - installationWindow)
             {
+                _logger.LogInformation("AccessKey {accessKey} is being marked for deactivation", key.AccessKeyId);
                 result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
             } 
             else if (key.CreateDate < rotationCutoff)
             {
+                _logger.LogInformation("AccessKey {accessKey} is being marked for rotation", key.AccessKeyId);
                 result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Rotate });
             } 
         }
