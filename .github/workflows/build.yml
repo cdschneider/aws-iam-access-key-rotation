@@ -26,13 +26,12 @@ jobs:
           role-duration-seconds: 900
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
       - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
       - run: dotnet tool restore -v n      
       - run: sam validate
       - run: sam build --debug
