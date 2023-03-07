@@ -1,6 +1,4 @@
 using AccessKeyActions.Configuration;
-using Amazon.DynamoDBv2;
-using Amazon.IdentityManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
