@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Amazon.Lambda.Core;
 using AccessKeyRotation.Models;
 
@@ -10,6 +11,16 @@ public static class LambdaContextExtensions
     
     public static LambdaFunctionArn FunctionArn(this ILambdaContext lambdaContext)
     {
-        return new LambdaFunctionArn(); //TODO
+        if (lambdaContext == null) throw new ArgumentNullException(nameof(lambdaContext));
+        
+        var regex = new Regex(LambdaArnPattern);
+        var match = regex.Match(lambdaContext.InvokedFunctionArn);
+
+        if (match.Success)
+        {
+            return new LambdaFunctionArn { AccountId = match.Groups[4].ToString() };
+        }
+
+        throw new ArgumentException("", nameof(lambdaContext.InvokedFunctionArn));
     } 
 }
