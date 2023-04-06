@@ -32,6 +32,7 @@ Resources:
       DefinitionSubstitutions:
         AccessKeyActionsFunctionArn: !GetAtt AccessKeyActionsFunction.Arn
         AccessKeyRotationFunctionArn: !GetAtt AccessKeyRotationFunction.Arn
+        AccessKeyDynamoDbTableName: !Ref AccessKeyTable
       Type: EXPRESS
       Tracing:
         Enabled: True
@@ -124,3 +125,10 @@ Resources:
               - 'iam:UpdateAccessKey'
               - 'iam:DeleteAccessKey'
             Resource: '*'
+
+  AccessKeyTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: Id
+        Type: String
