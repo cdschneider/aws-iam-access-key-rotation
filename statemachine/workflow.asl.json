@@ -94,7 +94,7 @@
                           "Type": "Task",
                           "Resource": "arn:aws:states:::dynamodb:putItem",
                           "Parameters": {
-                            "TableName": "${AccessKeyDynamoDbTable}",
+                            "TableName": "${AccessKeyDynamoDbTableName}",
                             "Item": {
                               "Id": {
                                 "S.$": "$.AccessKeyId"
@@ -108,12 +108,7 @@
                             },
                             "ConditionExpression": "attribute_not_exists(Id)"
                           },
-                          "End": true,
-                          "Catch": [
-                            {
-                              "ErrorEquals": []
-                            }
-                          ]
+                          "End": true
                         }
                       }
                     },
