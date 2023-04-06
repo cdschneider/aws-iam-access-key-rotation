@@ -81,6 +81,42 @@
                     },
                     "Resource": "arn:aws:states:::aws-sdk:iam:listAccessKeys",
                     "ResultPath": "$.ListAccessKeysResult",
+                    "Next": "Map (1)"
+                  },
+                  "Map (1)": {
+                    "Type": "Map",
+                    "ItemsPath": "$.ListAccessKeysResult.AccessKeyMetadata",
+                    "ResultPath": null,
+                    "ItemProcessor": {
+                      "StartAt": "DynamoDB PutItem",
+                      "States": {
+                        "DynamoDB PutItem": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::dynamodb:putItem",
+                          "Parameters": {
+                            "TableName": "${AccessKeyDynamoDbTable}",
+                            "Item": {
+                              "Id": {
+                                "S.$": "$.AccessKeyId"
+                              },
+                              "UserName": {
+                                "S.$": "$.UserName"
+                              },
+                              "CreateDate": {
+                                "S.$": "$.CreateDate"
+                              }
+                            },
+                            "ConditionExpression": "attribute_not_exists(Id)"
+                          },
+                          "End": true,
+                          "Catch": [
+                            {
+                              "ErrorEquals": []
+                            }
+                          ]
+                        }
+                      }
+                    },
                     "Next": "Get Key Actions"
                   },
                   "Get Key Actions": {
