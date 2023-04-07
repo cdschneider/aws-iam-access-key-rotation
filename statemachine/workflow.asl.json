@@ -108,6 +108,18 @@
                             },
                             "ConditionExpression": "attribute_not_exists(Id)"
                           },
+                          "Catch": [
+                            {
+                              "ErrorEquals": [
+                                "DynamoDB.ConditionalCheckFailedException"
+                              ],
+                              "Next": "Catch ConditionCheckFailedException"
+                            }
+                          ],
+                          "End": true
+                        },
+                        "Catch ConditionCheckFailedException": {
+                          "Type": "Pass",
                           "End": true
                         }
                       }
