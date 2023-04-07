@@ -183,6 +183,29 @@
                             "AccessKeyId.$": "$.KeyAction.AccessKeyId",
                             "UserName.$": "$.UserName"
                           },
+                          "ResultPath": null,
+                          "Next": "Set DeletionDate"
+                        },
+                        "Set DeletionDate": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::dynamodb:updateItem",
+                          "Parameters": {
+                            "TableName": "${AccessKeyDynamoDbTableName}",
+                            "Key": {
+                              "Id": {
+                                "S.$": "$.KeyAction.AccessKeyId"
+                              }
+                            },
+                            "UpdateExpression": "SET #D = :d",
+                            "ExpressionAttributeNames": {
+                              "#D": "DeletionDate"
+                            },
+                            "ExpressionAttributeValues": {
+                              ":d": {
+                                "S.$": "$$.State.EnteredTime"
+                              }
+                            }
+                          },
                           "End": true
                         },
                         "Rotate Access Key": {
@@ -192,6 +215,7 @@
                             "AccessKeyId.$": "$.KeyAction.AccessKeyId",
                             "UserName.$": "$.UserName"
                           },
+                          "ResultPath": null,
                           "Retry": [
                             {
                               "ErrorEquals": [
@@ -205,6 +229,28 @@
                               "BackoffRate": 2.0
                             }
                           ],
+                          "Next": "Set RotationDate"
+                        },
+                        "Set RotationDate": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::dynamodb:updateItem",
+                          "Parameters": {
+                            "TableName": "${AccessKeyDynamoDbTableName}",
+                            "Key": {
+                              "Id": {
+                                "S.$": "$.KeyAction.AccessKeyId"
+                              }
+                            },
+                            "UpdateExpression": "SET #R = :r",
+                            "ExpressionAttributeNames": {
+                              "#R": "RotationDate"
+                            },
+                            "ExpressionAttributeValues": {
+                              ":r": {
+                                "S.$": "$$.State.EnteredTime"
+                              }
+                            }
+                          },
                           "End": true
                         },
                         "Deactivate Access Key": {
@@ -216,6 +262,28 @@
                             "Status": "Inactive"
                           },
                           "ResultPath": null,
+                          "Next": "Set DeactivationDate"
+                        },
+                        "Set DeactivationDate": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::dynamodb:updateItem",
+                          "Parameters": {
+                            "TableName": "${AccessKeyDynamoDbTableName}",
+                            "Key": {
+                              "Id": {
+                                "S.$": "$.KeyAction.AccessKeyId"
+                              }
+                            },
+                            "UpdateExpression": "SET #D = :d",
+                            "ExpressionAttributeNames": {
+                              "#D": "DeactivationDate"
+                            },
+                            "ExpressionAttributeValues": {
+                              ":d": {
+                                "S.$": "$$.State.EnteredTime"
+                              }
+                            }
+                          },
                           "End": true
                         }
                       }
