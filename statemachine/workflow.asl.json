@@ -66,9 +66,9 @@
           }
         },
         {
-          "StartAt": "Map",
+          "StartAt": "For Each User",
           "States": {
-            "Map": {
+            "For Each User": {
               "Type": "Map",
               "ItemsPath": "$.ListUsersResult.Users",
               "ItemProcessor": {
@@ -81,9 +81,9 @@
                     },
                     "Resource": "arn:aws:states:::aws-sdk:iam:listAccessKeys",
                     "ResultPath": "$.ListAccessKeysResult",
-                    "Next": "Map (1)"
+                    "Next": "For Each AccessKey"
                   },
-                  "Map (1)": {
+                  "For Each AccessKey": {
                     "Type": "Map",
                     "ItemsPath": "$.ListAccessKeysResult.AccessKeyMetadata",
                     "ResultPath": null,
