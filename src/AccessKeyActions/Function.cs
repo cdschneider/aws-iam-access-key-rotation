@@ -1,5 +1,6 @@
 using AccessKeyActions.Configuration;
 using AccessKeyActions.Models;
+using AccessKeyActions.Repositories;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Lambda.Annotations;
@@ -16,11 +17,13 @@ namespace AccessKeyActions;
 public class Function
 {
     private readonly IFunctionConfiguration _configuration;
+    private readonly IAccessKeyRepository _accessKeyRepository;
     private readonly ILogger<Function> _logger;
     
-    public Function(IFunctionConfiguration configuration, ILogger<Function> logger)
+    public Function(IFunctionConfiguration configuration, IAccessKeyRepository accessKeyRepository, ILogger<Function> logger)
     {
         _configuration = configuration;
+        _accessKeyRepository = accessKeyRepository;
         _logger = logger;
 
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -30,7 +33,7 @@ public class Function
     }
     
     [LambdaFunction]
-    public IList<AccessKeyAction> FunctionHandler(IList<AccessKey> keys, ILambdaContext context)
+    public async Task<IList<AccessKeyAction>> FunctionHandler(IList<AccessKey> keys, ILambdaContext context)
     {
         if (keys == null) throw new ArgumentNullException(nameof(keys));
         if (keys.Count == 0)
@@ -54,12 +57,14 @@ public class Function
         
         foreach (var key in keys.Where(k => k.Status == StatusType.Active))
         {
+            var keyDetails = await _accessKeyRepository.GetByIdAsync(key.AccessKeyId);
+            
             if (key.CreateDate < rotationCutoff - installationWindow)
             {
                 _logger.LogInformation("AccessKey {accessKey} is being marked for deactivation", key.AccessKeyId);
                 result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
             } 
-            else if (key.CreateDate < rotationCutoff)
+            else if (key.CreateDate < rotationCutoff && !keyDetails.RotationDate.HasValue)
             {
                 _logger.LogInformation("AccessKey {accessKey} is being marked for rotation", key.AccessKeyId);
                 result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Rotate });
