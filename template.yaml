@@ -74,6 +74,7 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref AccessKeyTable
+      Timeout: 10
       Environment:
         Variables:
           DynamoDB__TableName: !Ref AccessKeyTable
