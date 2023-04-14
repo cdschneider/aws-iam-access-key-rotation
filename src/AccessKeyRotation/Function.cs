@@ -27,11 +27,6 @@ public class Function
         _secretsManager = secretsManager;
         _iamService = iamService;
         _logger = logger;
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Initializing a new instance of Function()");
-        }
     }
     
     [LambdaFunction]

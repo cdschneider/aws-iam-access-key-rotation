@@ -2,7 +2,6 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace AccessKeyActions.Models;
 
-[DynamoDBTable("")]
 public class AccessKeyEntity
 {
     [DynamoDBHashKey]

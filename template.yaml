@@ -71,6 +71,12 @@ Resources:
       Runtime: 'dotnet6'
       Architectures:
         - x86_64
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref AccessKeyTable
+      Environment:
+        Variables:
+          DynamoDB__TableName: !Ref AccessKeyTable
 
   AccessKeyRotationFunction:
     Type: AWS::Serverless::Function
