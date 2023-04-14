@@ -25,11 +25,6 @@ public class Function
         _configuration = configuration;
         _accessKeyRepository = accessKeyRepository;
         _logger = logger;
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Initializing new instance of Function()");
-        }
     }
     
     [LambdaFunction]
@@ -59,7 +54,7 @@ public class Function
         {
             var keyDetails = await _accessKeyRepository.GetByIdAsync(key.AccessKeyId);
             
-            if (key.CreateDate < rotationCutoff - installationWindow)
+            if (key.CreateDate < rotationCutoff - installationWindow && !keyDetails.DeactivationDate.HasValue)
             {
                 _logger.LogInformation("AccessKey {accessKey} is being marked for deactivation", key.AccessKeyId);
                 result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });

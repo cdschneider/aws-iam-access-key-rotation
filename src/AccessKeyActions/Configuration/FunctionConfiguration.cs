@@ -6,21 +6,14 @@ namespace AccessKeyActions.Configuration;
 public class FunctionConfiguration : IFunctionConfiguration
 {
     private readonly IConfiguration _configuration;
-    private readonly ILogger<FunctionConfiguration> _logger;
     
     private static readonly string KeyRotationConfigurationKey = "Function:KeyRotation";
     private static readonly string KeyInstallationConfigurationKey = "Function:KeyInstallation";
     private static readonly string KeyRecoveryConfigurationKey = "Function:KeyRecovery";
     
-    public FunctionConfiguration(IConfiguration configuration, ILogger<FunctionConfiguration> logger)
+    public FunctionConfiguration(IConfiguration configuration)
     {
         _configuration = configuration;
-        _logger = logger;
-        
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Initializing new instance of FunctionConfiguration()");
-        }
     }
 
     public TimeSpan AccessKeyRotationWindow()
