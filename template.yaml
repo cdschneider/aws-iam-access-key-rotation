@@ -50,8 +50,8 @@ Resources:
             Enabled: True
       Policies:
         - IAMReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
         - !Ref IAMUpdateAccessKeysPolicy
-        - !Ref StepFunctionsTracingPolicy
         - !Ref StepFunctionsLoggingPolicy
         - LambdaInvokePolicy:
             FunctionName: !Ref AccessKeyActionsFunction
@@ -74,6 +74,8 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref AccessKeyTable
+        - AWSXrayWriteOnlyAccess
+      Tracing: Active
       Timeout: 10
       Environment:
         Variables:
@@ -90,6 +92,8 @@ Resources:
       Policies:
         - IAMFullAccess
         - SecretsManagerReadWrite
+        - AWSXrayWriteOnlyAccess
+      Tracing: Active
 
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -107,20 +111,6 @@ Resources:
               - 'logs:PutResourcePolicy'
               - 'logs:DescribeResourcePolicies'
               - 'logs:DescribeLogGroups'
-            Resource: '*'
-
-  StepFunctionsTracingPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - 'xray:PutTraceSegments'
-              - 'xray:PutTelemetryRecords'
-              - 'xray:GetSamplingRules'
-              - 'xray:GetSamplingTargets'
             Resource: '*'
 
   IAMUpdateAccessKeysPolicy:
