@@ -1,5 +1,6 @@
 using Amazon.IdentityManagement;
 using Amazon.SecretsManager;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,7 @@ public class Startup
         });
         
         // AWS Services
+        AWSSDKHandler.RegisterXRayForAllServices();
         services.AddAWSService<IAmazonIdentityManagementService>();
         services.AddAWSService<IAmazonSecretsManager>();
     }

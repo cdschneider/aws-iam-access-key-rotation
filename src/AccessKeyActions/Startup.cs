@@ -2,6 +2,7 @@ using AccessKeyActions.Configuration;
 using AccessKeyActions.Options;
 using AccessKeyActions.Repositories;
 using Amazon.DynamoDBv2;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,7 @@ public class Startup
         });
 
         // AWS Services
+        AWSSDKHandler.RegisterXRayForAllServices();
         services.AddAWSService<IAmazonDynamoDB>();
     }
 }
