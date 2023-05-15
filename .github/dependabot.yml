@@ -4,8 +4,7 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/" # Location of package manifests
     schedule:
-      day: "sunday"
-      interval: "weekly"
+      interval: "monthly"
     assignees:
       - "cdschneider"
     reviewers:
@@ -14,8 +13,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/" # Location of package manifests
     schedule:
-      day: "sunday" 
-      interval: "weekly"
+      interval: "monthly"
     assignees:
       - "cdschneider"
     reviewers:
