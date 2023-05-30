@@ -18,16 +18,10 @@ public class FunctionTest
     private readonly IFixture _fixture;
     private readonly Function _classUnderTest;
 
-    private static readonly DateTime ExpirationCutoff = new DateTime(1999, 1, 1);
-    private static readonly DateTime InstallationCutoff = new DateTime(1999, 1, 15);
-    private static readonly DateTime RecoveryCutoff = new DateTime(1999, 1, 20);
-
     public FunctionTest()
     {
         _mocker = new AutoMocker();
         _fixture = new Fixture().Customize(new AutoMoqCustomization());
-        
-        _mocker.Use<IFunctionConfiguration>(new TestFunctionConfiguration(ExpirationCutoff, InstallationCutoff, RecoveryCutoff));
         _classUnderTest = _mocker.CreateInstance<Function>();
     }
 
@@ -38,29 +32,71 @@ public class FunctionTest
         var result = await _classUnderTest.FunctionHandler(
             new List<AccessKey>(), new TestLambdaContext());
         
-        // assert
+        // assert & verify
         Assert.Empty(result);
     }
 
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneActiveNonExpiredAccessKeyExists_ThenNoActionsPresent()
+    {
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));
+        key.Status = StatusType.Active;
+
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Empty(result);
+    }
+    
     [Fact]
     public async Task TestFunctionHandler_WhenOneActiveExpiredAccessKeyExists_ThenRotationActionIsPresent()
     {
         // arrange
         var key = _fixture.Create<AccessKey>();
-        key.CreateDate = ExpirationCutoff.Subtract(TimeSpan.FromMinutes(10));
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         key.Status = StatusType.Active;
-
-        _mocker.GetMock<IAccessKeyRepository>().Setup(x => x.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(new AccessKeyEntity { Id = _fixture.Create<string>() });
         
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+
         // act
         var result = await _classUnderTest.FunctionHandler(
             new List<AccessKey> { key }, new TestLambdaContext());
 
         // assert & verify
         Assert.Equal(1, result.Count);
-        Assert.Contains(result, a =>
-            (a.Action == ActionType.Rotate && a.AccessKeyId == key.AccessKeyId));
+        Assert.Contains(result, k => 
+            k.AccessKeyId == key.AccessKeyId && k.Action == ActionType.Rotate);
+    }
+    
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneActiveExpiredPastInstallationWindowAccessKeyExists_ThenRotationActionIsPresent()
+    {
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
+        key.Status = StatusType.Active;
+        
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Equal(1, result.Count);
+        Assert.Contains(result, k => 
+            k.AccessKeyId == key.AccessKeyId && k.Action == ActionType.Rotate);
     }
 }
 
@@ -75,12 +111,9 @@ internal class TestFunctionConfiguration : IFunctionConfiguration
         _recoveryCutoff = recoveryCutoff;
     }
 
-    public TimeSpan AccessKeyRotationWindow() =>
-        DateTime.UtcNow - _expiationCutoff;
+    public TimeSpan AccessKeyRotationWindow() => DateTime.UtcNow - _expiationCutoff;
 
-    public TimeSpan AccessKeyInstallationWindow() =>
-        _installationCutoff - _expiationCutoff;
+    public TimeSpan AccessKeyInstallationWindow() => _installationCutoff - _expiationCutoff;
 
-    public TimeSpan AccessKeyRecoveryWindow() =>
-        _recoveryCutoff - _installationCutoff;
+    public TimeSpan AccessKeyRecoveryWindow() => _recoveryCutoff - _installationCutoff;
 } 

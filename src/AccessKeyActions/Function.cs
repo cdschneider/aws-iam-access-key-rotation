@@ -58,12 +58,7 @@ public class Function
         {
             var keyDetails = await _accessKeyRepository.GetByIdAsync(key.AccessKeyId);
             
-            if (key.CreateDate <= (rotationDate - installationWindow) && keyDetails is { DeactivationDate: null })
-            {
-                _logger.LogInformation("AccessKey {accessKey} is being marked for deactivation", key.AccessKeyId);
-                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
-            }
-            else if (key.CreateDate <= rotationDate && keyDetails is { RotationDate: null })
+            if (key.CreateDate <= rotationDate && keyDetails?.RotationDate is null)
             {
                 if (keys.Count == 2 && !result.Any(x => x.Action == ActionType.Delete))
                 {
@@ -129,6 +124,11 @@ public class Function
                     _logger.LogInformation("AccessKey {accessKey} is being marked for rotation", key.AccessKeyId);
                     result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Rotate });
                 }
+            }
+            else if (key.CreateDate <= (rotationDate - installationWindow) && keyDetails?.DeactivationDate is null)
+            {
+                _logger.LogInformation("AccessKey {accessKey} is being marked for deactivation", key.AccessKeyId);
+                result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Deactivate });
             }
         }
 
