@@ -26,6 +26,12 @@ public class FunctionTest
     }
 
     [Fact]
+    public async Task TestFunctionHandler_WhenInputIsNull_ThenArgumentNullExceptionIsThrown()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _classUnderTest.FunctionHandler(null, new TestLambdaContext()));
+    }
+    
+    [Fact]
     public async Task TestFunctionHandler_WhenNoAccessKeysExist_ThenNoActionsPresent()
     {
         // act
@@ -98,22 +104,119 @@ public class FunctionTest
         Assert.Contains(result, k => 
             k.AccessKeyId == key.AccessKeyId && k.Action == ActionType.Rotate);
     }
-}
-
-internal class TestFunctionConfiguration : IFunctionConfiguration
-{
-    private readonly DateTime _expiationCutoff, _installationCutoff, _recoveryCutoff;
     
-    public TestFunctionConfiguration(DateTime expirationCutoff, DateTime installationCutoff, DateTime recoveryCutoff)
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneActiveExpiredPastInstallationWindowAndRotatedAccessKeyExists_ThenDeactivationActionIsPresent()
     {
-        _expiationCutoff = expirationCutoff;
-        _installationCutoff = installationCutoff;
-        _recoveryCutoff = recoveryCutoff;
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
+        key.Status = StatusType.Active;
+
+        _mocker.GetMock<IAccessKeyRepository>().Setup(x => x.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(new AccessKeyEntity { RotationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30)) });
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Equal(1, result.Count);
+        Assert.Contains(result, k => 
+            k.AccessKeyId == key.AccessKeyId && k.Action == ActionType.Deactivate);
     }
 
-    public TimeSpan AccessKeyRotationWindow() => DateTime.UtcNow - _expiationCutoff;
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneInactiveNonExpiredAccessKeyExists_ThenNoActionsPresent()
+    {
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));
+        key.Status = StatusType.Inactive;
 
-    public TimeSpan AccessKeyInstallationWindow() => _installationCutoff - _expiationCutoff;
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
 
-    public TimeSpan AccessKeyRecoveryWindow() => _recoveryCutoff - _installationCutoff;
-} 
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Empty(result);
+    }
+    
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneInactiveExpiredAccessKeyExists_ThenNoActionsPresent()
+    {
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
+        key.Status = StatusType.Inactive;
+
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Empty(result);
+    }
+    
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneInactiveExpiredPastInstallationWindowAccessKeyExists_ThenNoActionsPresent()
+    {
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(40));
+        key.Status = StatusType.Inactive;
+
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRecoveryWindow())
+            .Returns(TimeSpan.FromDays(7));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Empty(result);
+    }
+    
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneInactiveExpiredPastInstallationWindowAndInstalledAccessKeyExists_ThenDeleteActionIsPresent()
+    {
+        // arrange
+        var key = _fixture.Create<AccessKey>();
+        key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
+        key.Status = StatusType.Inactive;
+
+        _mocker.GetMock<IAccessKeyRepository>().Setup(x => x.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(new AccessKeyEntity { DeactivationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(40)) });
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+        _mocker.GetMock<IFunctionConfiguration>().Setup(x => x.AccessKeyRecoveryWindow())
+            .Returns(TimeSpan.FromDays(7));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            new List<AccessKey> { key }, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Equal(1, result.Count);
+        Assert.Contains(result, k => 
+            k.AccessKeyId == key.AccessKeyId && k.Action == ActionType.Delete);
+    }
+}
