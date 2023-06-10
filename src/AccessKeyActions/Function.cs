@@ -60,9 +60,9 @@ public class Function
             
             if (key.CreateDate <= rotationDate && keyDetails?.RotationDate is null)
             {
-                if (keys.Count == 2 && !result.Any(x => x.Action == ActionType.Delete))
+                if (keys.Count == 2 && result.All(x => x.Action != ActionType.Delete))
                 {
-                    var otherKey = keys.First(k => k != key);
+                    var otherKey = keys.First(k => k.AccessKeyId != key.AccessKeyId);
                     var otherKeyDetails = await _accessKeyRepository.GetByIdAsync(otherKey.AccessKeyId);
                     
                     if (otherKey.Status == StatusType.Active && 
