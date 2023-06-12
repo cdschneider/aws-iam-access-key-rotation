@@ -283,6 +283,39 @@ public class FunctionTest
         Assert.Contains(result, k => k.Action == ActionType.Rotate);
     }
 
+    [Fact]
+    public async Task TestFunctionHandler_WhenTwoActiveExpiredAndRotatedAccessKeysExist_ThenTwoDeactivationActionsArePresent()
+    {
+        // arrange
+        var keys = _fixture.CreateMany<AccessKey>(2).ToList();
+        keys[0].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
+        keys[0].Status = StatusType.Active;
+        keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
+        keys[1].Status = StatusType.Active;
+        
+        _mocker.GetMock<IFunctionConfiguration>()
+            .Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>()
+            .Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+        
+        _mocker.GetMock<IAccessKeyRepository>()
+            .Setup(x => x.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(new AccessKeyEntity { RotationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30)) });
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            keys, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, k => 
+            k.AccessKeyId == keys[0].AccessKeyId && k.Action == ActionType.Deactivate);
+        Assert.Contains(result, k => 
+            k.AccessKeyId == keys[1].AccessKeyId && k.Action == ActionType.Deactivate);
+    }
+
     //TODO: more test cases with two Active, Expired access keys (last recently-used, earliest created, etc.) 
     
     [Fact(Skip = "Still need to study this test case")]
@@ -369,6 +402,36 @@ public class FunctionTest
             k.AccessKeyId == keys[1].AccessKeyId && k.Action == ActionType.Delete);
     }
 
+    [Fact]
+    public async Task TestFunctionHandler_WhenOneActiveNonExpiredAccessKeyAndOneActiveExpiredAndRotatedAccessKeyExists_ThenOneDeactivationActionIsPresent()
+    {
+        // arrange
+        var keys = _fixture.CreateMany<AccessKey>(2).ToList();
+        keys[0].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));
+        keys[0].Status = StatusType.Active;
+        keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
+        keys[1].Status = StatusType.Active;
+        
+        _mocker.GetMock<IFunctionConfiguration>()
+            .Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>()
+            .Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+        
+        _mocker.GetMock<IAccessKeyRepository>()
+            .Setup(x => x.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(new AccessKeyEntity { RotationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30)) });
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            keys, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Equal(1, result.Count);
+        Assert.Contains(result, k => 
+            k.AccessKeyId == keys[1].AccessKeyId && k.Action == ActionType.Deactivate);
+    }
     [Fact]
     public async Task TestFunctionHandler_WhenOneActiveNonExpiredAccessKeyAndOneInactiveExpiredAndDeactivatedAccessKey_ThenOneDeleteActionIsPresent()
     {
