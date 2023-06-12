@@ -66,7 +66,7 @@ public class Function
                     var otherKeyDetails = await _accessKeyRepository.GetByIdAsync(otherKey.AccessKeyId);
                     
                     if (otherKey.Status == StatusType.Active && 
-                        (otherKey.CreateDate < rotationDate && !otherKeyDetails.RotationDate.HasValue))
+                        (otherKey.CreateDate <= rotationDate && otherKeyDetails?.RotationDate is null))
                     {
                         AccessKey keyToDelete, keyToRotate;
                         _logger.LogWarning("Conflict detected: multiple Active, expired access keys");
@@ -118,6 +118,8 @@ public class Function
                         _logger.LogInformation("AccessKey {accessKey} is being marked for rotation", key.AccessKeyId);
                         result.Add(new AccessKeyAction { AccessKeyId = key.AccessKeyId, Action = ActionType.Rotate });
                     }
+
+                    break;
                 }
                 else
                 {
