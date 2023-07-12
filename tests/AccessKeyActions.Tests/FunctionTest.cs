@@ -238,8 +238,10 @@ public class FunctionTest
 
         // assert & verify
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.Action == ActionType.Rotate);
+        Assert.Collection(result, 
+            k => Assert.Equal(ActionType.Delete, k.Action), 
+            k => Assert.Equal(ActionType.Rotate, k.Action)
+        );
     }
 
     [Fact]
@@ -277,8 +279,17 @@ public class FunctionTest
 
         // assert & verify
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.AccessKeyId == keys[0].AccessKeyId && k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.AccessKeyId == keys[1].AccessKeyId && k.Action == ActionType.Rotate);
+        Assert.Collection(result, 
+            k =>
+            {
+                Assert.Equal(keys[0].AccessKeyId, k.AccessKeyId);
+                Assert.Equal(ActionType.Delete, k.Action);
+            }, 
+            k =>
+            {
+                Assert.Equal(keys[1].AccessKeyId, k.AccessKeyId);
+                Assert.Equal(ActionType.Rotate, k.Action);
+            });
     }
 
     [Fact]
@@ -316,8 +327,17 @@ public class FunctionTest
 
         // assert & verify
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.AccessKeyId == keys[0].AccessKeyId && k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.AccessKeyId == keys[1].AccessKeyId && k.Action == ActionType.Rotate);
+        Assert.Collection(result, 
+            k =>
+            {
+                Assert.Equal(keys[0].AccessKeyId, k.AccessKeyId);
+                Assert.Equal(ActionType.Delete, k.Action);
+            }, 
+            k =>
+            {
+                Assert.Equal(keys[1].AccessKeyId, k.AccessKeyId);
+                Assert.Equal(ActionType.Rotate, k.Action);
+            });
     }
         
     [Fact]
@@ -375,8 +395,10 @@ public class FunctionTest
 
         // assert & verify
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.Action == ActionType.Rotate);
+        Assert.Collection(result, 
+            k => Assert.Equal(ActionType.Delete, k.Action), 
+            k => Assert.Equal(ActionType.Rotate, k.Action)
+        );
     }
     
     [Fact]
@@ -528,8 +550,10 @@ public class FunctionTest
 
         // assert & verify
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.Action == ActionType.Rotate);
+        Assert.Collection(result, 
+            k => Assert.Equal(ActionType.Delete, k.Action), 
+            k => Assert.Equal(ActionType.Rotate, k.Action)
+        );
     }
     
     [Fact]
@@ -562,8 +586,10 @@ public class FunctionTest
 
         // assert & verify
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.Action == ActionType.Rotate);
+        Assert.Collection(result, 
+            k => Assert.Equal(ActionType.Delete, k.Action), 
+            k => Assert.Equal(ActionType.Rotate, k.Action)
+        );
     }
     
     [Fact]
