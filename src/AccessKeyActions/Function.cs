@@ -8,7 +8,6 @@ using Amazon.Lambda.Core;
 using Microsoft.Extensions.Logging;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-//[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 [assembly: LambdaSerializer(typeof(AccessKeyActions.Serialization.CustomLambdaSerializer))]
 
 namespace AccessKeyActions;
@@ -35,6 +34,9 @@ public class Function
         if (keys == null) throw new ArgumentNullException(nameof(keys));
         if (keys.Count == 0)
             return new List<AccessKeyAction>();
+
+        if (keys.Count > 2)
+            throw new ArgumentException();
 
         var now = DateTime.UtcNow;
         var rotationDate = now - _configuration.AccessKeyRotationWindow();
@@ -72,32 +74,26 @@ public class Function
                         var (currLastUsed, otherLastUsed) = (
                             await _iamService.GetAccessKeyLastUsedAsync(new GetAccessKeyLastUsedRequest { AccessKeyId = key.AccessKeyId }),
                             await _iamService.GetAccessKeyLastUsedAsync(new GetAccessKeyLastUsedRequest { AccessKeyId = otherKey.AccessKeyId }));
-                        
-                        switch (currLastUsed, otherLastUsed)
+
+                        // least recently-used key should be deleted
+                        if (currLastUsed.AccessKeyLastUsed.LastUsedDate != default &&
+                            otherLastUsed.AccessKeyLastUsed.LastUsedDate != default)
                         {
-                            // least recently-used key should be deleted
-                            case (not null, not null):
-                                keyToDelete = (currLastUsed.AccessKeyLastUsed.LastUsedDate >= otherLastUsed.AccessKeyLastUsed.LastUsedDate) ? otherKey : key;
-                                keyToRotate = (currLastUsed.AccessKeyLastUsed.LastUsedDate >= otherLastUsed.AccessKeyLastUsed.LastUsedDate) ? key : otherKey;
-
-                                break;
-                            // least recently-created key should be deleted 
-                            case (null, null):
-                                keyToDelete = (key.CreateDate >= otherKey.CreateDate) ? otherKey : key;
-                                keyToRotate = (key.CreateDate >= otherKey.CreateDate) ? key : otherKey;
-                                
-                                break;
-                            // key that has not been used should be deleted
-                            case (null, _):
-                                keyToDelete = key;
-                                keyToRotate = otherKey;
-                                
-                                break;
-                            case (_, null) :
-                                keyToDelete = otherKey;
-                                keyToRotate = key;
-
-                                break;
+                            keyToDelete = (currLastUsed.AccessKeyLastUsed.LastUsedDate >= otherLastUsed.AccessKeyLastUsed.LastUsedDate) ? otherKey : key;
+                            keyToRotate = (currLastUsed.AccessKeyLastUsed.LastUsedDate >= otherLastUsed.AccessKeyLastUsed.LastUsedDate) ? key : otherKey;
+                        } 
+                        // least recently-created key should be deleted
+                        else if (currLastUsed.AccessKeyLastUsed.LastUsedDate == default &&
+                                   otherLastUsed.AccessKeyLastUsed.LastUsedDate == default)
+                        {
+                            keyToDelete = (key.CreateDate >= otherKey.CreateDate) ? otherKey : key;
+                            keyToRotate = (key.CreateDate >= otherKey.CreateDate) ? key : otherKey;
+                        }
+                        // key that has not been used should be deleted
+                        else
+                        {
+                            keyToDelete = currLastUsed.AccessKeyLastUsed.LastUsedDate == default ? key : otherKey;
+                            keyToRotate = currLastUsed.AccessKeyLastUsed.LastUsedDate == default ? otherKey : key;
                         }
                         
                         _logger.LogInformation("AccessKey {accessKey} is being marked for deletion", keyToDelete.AccessKeyId);
