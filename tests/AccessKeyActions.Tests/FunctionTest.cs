@@ -573,18 +573,4 @@ public class FunctionTest
         await Assert.ThrowsAsync<ArgumentException>(() => 
             _classUnderTest.FunctionHandler(keys, new TestLambdaContext()));
     }
-
-    [Fact(Skip = "please")]
-    public async Task TestGetAccessKey_WhenUnused()
-    {
-        var accessKeyId = "AKIA47UZP3XOF4NUAWAT";
-        var service = new AmazonIdentityManagementServiceClient();
-
-        var lastUsed = await service.GetAccessKeyLastUsedAsync(new GetAccessKeyLastUsedRequest { AccessKeyId = accessKeyId });
-        Assert.NotNull(lastUsed);
-        Assert.NotNull(lastUsed.AccessKeyLastUsed);
-        
-        Assert.True(lastUsed.AccessKeyLastUsed.LastUsedDate == default);
-    }
-    
 }
