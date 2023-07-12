@@ -506,6 +506,33 @@ public class FunctionTest
     }
 
     [Fact]
+    public async Task TestFunctionHandler_WhenOneActiveExpiredAccessKeyAndOneInactiveAccessKeyExists_ThenOneRotationActionAndOneDeleteActionArePresent()
+    {
+        // arrange
+        var keys = _fixture.CreateMany<AccessKey>(2).ToList();
+        keys[0].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
+        keys[0].Status = StatusType.Active;
+        keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
+        keys[1].Status = StatusType.Inactive;
+
+        _mocker.GetMock<IFunctionConfiguration>()
+            .Setup(x => x.AccessKeyRotationWindow())
+            .Returns(TimeSpan.FromDays(30));
+        _mocker.GetMock<IFunctionConfiguration>()
+            .Setup(x => x.AccessKeyInstallationWindow())
+            .Returns(TimeSpan.FromDays(7));
+
+        // act
+        var result = await _classUnderTest.FunctionHandler(
+            keys, new TestLambdaContext());
+
+        // assert & verify
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, k => k.Action == ActionType.Delete);
+        Assert.Contains(result, k => k.Action == ActionType.Rotate);
+    }
+    
+    [Fact]
     public async Task TestFunctionHandler_WhenOneActiveExpiredAccessKeyAndOneInactiveExpiredAndDeactivatedAccessKey_ThenOneRotationAndOneDeleteActionArePresent()
     {
         // arrange
@@ -540,34 +567,7 @@ public class FunctionTest
     }
     
     [Fact]
-    public async Task TestFunctionHandler_WhenOneActiveExpiredAccessKeyAndOneInactiveAccessKeyExists_ThenOneRotationActionAndOneDeleteActionArePresent()
-    {
-        // arrange
-        var keys = _fixture.CreateMany<AccessKey>(2).ToList();
-        keys[0].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
-        keys[0].Status = StatusType.Active;
-        keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
-        keys[1].Status = StatusType.Inactive;
-
-        _mocker.GetMock<IFunctionConfiguration>()
-            .Setup(x => x.AccessKeyRotationWindow())
-            .Returns(TimeSpan.FromDays(30));
-        _mocker.GetMock<IFunctionConfiguration>()
-            .Setup(x => x.AccessKeyInstallationWindow())
-            .Returns(TimeSpan.FromDays(7));
-
-        // act
-        var result = await _classUnderTest.FunctionHandler(
-            keys, new TestLambdaContext());
-
-        // assert & verify
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, k => k.Action == ActionType.Delete);
-        Assert.Contains(result, k => k.Action == ActionType.Rotate);
-    }
-    
-    [Fact]
-    public async Task TestFunctionHandler_WhenMoreThanTwoAccessKeysExist_ThenExceptionIsThrown()
+    public async Task TestFunctionHandler_WhenMoreThanTwoAccessKeysExist_ThenArgumentExceptionIsThrown()
     {
         var keys = _fixture.CreateMany<AccessKey>(3).ToList();
         await Assert.ThrowsAsync<ArgumentException>(() => 
