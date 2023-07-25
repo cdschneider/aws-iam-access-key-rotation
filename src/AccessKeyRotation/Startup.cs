@@ -1,3 +1,4 @@
+using AccessKeyRotation.Services;
 using Amazon.IdentityManagement;
 using Amazon.SecretsManager;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
@@ -18,8 +19,9 @@ public class Startup
             .AddEnvironmentVariables()
             .Build();
         
-        // Configuration
+        // Core Services
         services.AddSingleton<IConfiguration>(config);
+        services.AddTransient<ILambdaFunctionArnParser, LambdaFunctionArnParser>();
         
         // Logging
         services.AddLogging(builder =>

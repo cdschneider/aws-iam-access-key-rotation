@@ -1,6 +1,6 @@
 using System.Text.Json;
-using AccessKeyRotation.Extensions;
 using AccessKeyRotation.Models;
+using AccessKeyRotation.Services;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Lambda.Annotations;
@@ -19,13 +19,15 @@ public class Function
 {
     private readonly IAmazonSecretsManager _secretsManager;
     private readonly IAmazonIdentityManagementService _iamService;
+    private readonly ILambdaFunctionArnParser _fnArnParser;
     private readonly ILogger<Function> _logger;
 
     public Function(IAmazonSecretsManager secretsManager, IAmazonIdentityManagementService iamService,
-        ILogger<Function> logger)
+        ILambdaFunctionArnParser fnArnParser, ILogger<Function> logger)
     {
         _secretsManager = secretsManager;
         _iamService = iamService;
+        _fnArnParser = fnArnParser;
         _logger = logger;
     }
     
@@ -44,7 +46,7 @@ public class Function
         
         var secretName = string.Format(Constants.SecretNameFormat, input.UserName);
         var secretString = JsonSerializer.Serialize(new { AccessKeyId = newAccessKey.AccessKey.AccessKeyId, 
-            SecretAccessKey = newAccessKey.AccessKey.SecretAccessKey});
+            SecretAccessKey = newAccessKey.AccessKey.SecretAccessKey });
 
         try
         {
@@ -58,7 +60,7 @@ public class Function
         catch (ResourceNotFoundException)
         {
             _logger.LogWarning("Secret with name {name} does not exist", secretName);
-            var secretReq = new CreateSecretRequest { Name = string.Format(Constants.SecretNameFormat, input.UserName), SecretString = secretString };
+            var secretReq = new CreateSecretRequest { Name = secretName, SecretString = secretString };
             var createdSecret = await _secretsManager.CreateSecretAsync(secretReq);
             
             _logger.LogDebug("Successfully created Secret {secretName}", createdSecret.Name);
@@ -66,7 +68,7 @@ public class Function
 
         _logger.LogInformation("AccessKey has been generated for {username} and stored as {secretName}", input.UserName, secretName);
         
-        var functionArn = context.FunctionArn();
+        var functionArn = _fnArnParser.Parse(context.InvokedFunctionArn);
         var secretPolicy = string.Format(Constants.PolicyDocumentFormat, functionArn.AccountId, input.UserName);
         
         if (_logger.IsEnabled(LogLevel.Debug))
