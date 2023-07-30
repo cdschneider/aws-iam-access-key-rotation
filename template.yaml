@@ -79,6 +79,9 @@ Resources:
       Timeout: 10
       Environment:
         Variables:
+          Function__KeyRotation: 604800
+          Function__KeyInstallation: 86400
+          Function__KeyRecovery: 86400
           DynamoDB__TableName: !Ref AccessKeyTable
 
   AccessKeyRotationFunction:
