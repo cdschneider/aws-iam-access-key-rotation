@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyActions", "src\Acc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessKeyActions.Tests", "tests\AccessKeyActions.Tests\AccessKeyActions.Tests.csproj", "{BC30979E-D740-4305-8808-462CDDA9DEFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IamAccessKeyRotation.Cdk", "cdk\IamAccessKeyRotation.Cdk\IamAccessKeyRotation.Cdk.csproj", "{C3DB5191-D87D-404C-A039-22F5444054F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC30979E-D740-4305-8808-462CDDA9DEFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3DB5191-D87D-404C-A039-22F5444054F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3DB5191-D87D-404C-A039-22F5444054F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3DB5191-D87D-404C-A039-22F5444054F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3DB5191-D87D-404C-A039-22F5444054F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
