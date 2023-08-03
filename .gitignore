@@ -631,6 +631,9 @@ fabric.properties
 # SAM config - exclude this file if sharing publicly
 #samconfig.toml
 
+### Amazon.Lambda.Annotations auto-managed files
+serverless.template
+
 ### VisualStudioCode ###
 !.vscode/*.code-snippets
 
