@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.CDK.Lib" Version="2.89.0" />
+    <PackageReference Include="Amazon.JSII.Analyzers" Version="1.86.1" />
     <PackageReference Include="Cdklabs.CdkNag" Version="2.27.90" />
     <PackageReference Include="Constructs" Version="10.2.69" />
   </ItemGroup>

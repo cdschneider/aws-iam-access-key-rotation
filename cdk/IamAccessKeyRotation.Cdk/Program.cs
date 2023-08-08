@@ -1,9 +1,15 @@
-﻿namespace IamAccessKeyRotation.Cdk;
+﻿using Amazon.CDK;
+
+namespace IamAccessKeyRotation.Cdk;
 
 class Program
 {
     static void Main(string[] args)
     {
-        //Console.WriteLine("Hello, World!");
+        var app = new App();
+
+        new IamAccessKeyRotationStack(app, "IamAccessKeyRotationStack");
+
+        app.Synth();
     }
 }
