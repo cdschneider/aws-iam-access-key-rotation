@@ -6,23 +6,37 @@ using Amazon.Lambda.TestUtilities;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using AutoFixture;
-using Moq;
-using Moq.AutoMock;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging.Abstractions;
+using Newtonsoft.Json.Serialization;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace AccessKeyRotation.Tests;
 
 public class FunctionTest
 {
-    private readonly AutoMocker _mocker;
+    private readonly IAmazonSecretsManager _mockAwsSecretsManager;
+    private readonly IAmazonIdentityManagementService _mockAwsIamService;
+    private readonly ILambdaFunctionArnParser _mockLambdaFunctionArnParser;
+    
     private readonly Fixture _fixture;
     private readonly Function _classUnderTest;
     
     public FunctionTest()
     {
+        _mockAwsSecretsManager = Substitute.For<IAmazonSecretsManager>();
+        _mockAwsIamService = Substitute.For<IAmazonIdentityManagementService>();
+        _mockLambdaFunctionArnParser = Substitute.For<ILambdaFunctionArnParser>();
+        
         _fixture = new Fixture();
-        _mocker = new AutoMocker();
-        _classUnderTest = _mocker.CreateInstance<Function>();
+        _classUnderTest = new Function(
+            _mockAwsSecretsManager,
+            _mockAwsIamService,
+            _mockLambdaFunctionArnParser,
+            new NullLogger<Function>()
+        );
     }
 
     [Fact]
@@ -40,62 +54,44 @@ public class FunctionTest
     public async Task TestFunctionHandler_WhenNoSecretAlreadyExists_ThenKeyIsCreatedAndSecretIsAdded()
     {
         // arrange
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Setup(x => x.DescribeSecretAsync(It.IsAny<DescribeSecretRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new ResourceNotFoundException(string.Empty));
-        _mocker.GetMock<IAmazonIdentityManagementService>()
-            .Setup(x => x.CreateAccessKeyAsync(It.IsAny<CreateAccessKeyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<CreateAccessKeyResponse>());
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Setup(x => x.CreateSecretAsync(It.IsAny<CreateSecretRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<CreateSecretResponse>());
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Setup(x => x.PutResourcePolicyAsync(It.IsAny<PutResourcePolicyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(null as PutResourcePolicyResponse);
-        _mocker.GetMock<ILambdaFunctionArnParser>()
-            .Setup(x => x.Parse(It.IsAny<string>()))
-            .Returns(_fixture.Create<LambdaFunctionArn>());
+        _mockAwsSecretsManager.DescribeSecretAsync(Arg.Any<DescribeSecretRequest>(), Arg.Any<CancellationToken>())
+            .Throws(new ResourceNotFoundException(string.Empty));
+        _mockAwsIamService.CreateAccessKeyAsync(Arg.Any<CreateAccessKeyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(_fixture.Create<CreateAccessKeyResponse>());
+        _mockAwsSecretsManager.CreateSecretAsync(Arg.Any<CreateSecretRequest>(), Arg.Any<CancellationToken>())
+            .Returns(_fixture.Create<CreateSecretResponse>());
+        _mockAwsSecretsManager.PutResourcePolicyAsync(Arg.Any<PutResourcePolicyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(null as PutResourcePolicyResponse);
+        _mockLambdaFunctionArnParser.Parse(Arg.Any<string>()).Returns(_fixture.Create<LambdaFunctionArn>());
 
         // act
         var request = _fixture.Create<AccessKeyRotationRequest>();
         await _classUnderTest.FunctionHandler(request, new TestLambdaContext());
         
         // assert
-        _mocker.VerifyAll();
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Verify(x => x.UpdateSecretAsync(It.IsAny<UpdateSecretRequest>(), It.IsAny<CancellationToken>()), 
-                Times.Never);
+        await _mockAwsSecretsManager.DidNotReceiveWithAnyArgs().UpdateSecretAsync(default);
     }
     
     [Fact]
     public async Task TestFunctionHandler_WhenSecretAlreadyExists_ThenKeyIsCreatedAndSecretIsUpdated()
     {
         // arrange
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Setup(x => x.DescribeSecretAsync(It.IsAny<DescribeSecretRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<DescribeSecretResponse>());
-        _mocker.GetMock<IAmazonIdentityManagementService>()
-            .Setup(x => x.CreateAccessKeyAsync(It.IsAny<CreateAccessKeyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<CreateAccessKeyResponse>());
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Setup(x => x.UpdateSecretAsync(It.IsAny<UpdateSecretRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<UpdateSecretResponse>());
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Setup(x => x.PutResourcePolicyAsync(It.IsAny<PutResourcePolicyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(null as PutResourcePolicyResponse);
-        _mocker.GetMock<ILambdaFunctionArnParser>()
-            .Setup(x => x.Parse(It.IsAny<string>()))
-            .Returns(_fixture.Create<LambdaFunctionArn>());
+        _mockAwsSecretsManager.DescribeSecretAsync(Arg.Any<DescribeSecretRequest>(), Arg.Any<CancellationToken>())
+            .Returns(_fixture.Create<DescribeSecretResponse>());
+        _mockAwsIamService.CreateAccessKeyAsync(Arg.Any<CreateAccessKeyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(_fixture.Create<CreateAccessKeyResponse>());
+        _mockAwsSecretsManager.UpdateSecretAsync(Arg.Any<UpdateSecretRequest>(), Arg.Any<CancellationToken>())
+            .Returns(_fixture.Create<UpdateSecretResponse>());
+        _mockAwsSecretsManager.PutResourcePolicyAsync(Arg.Any<PutResourcePolicyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(null as PutResourcePolicyResponse);
+        _mockLambdaFunctionArnParser.Parse(Arg.Any<string>()).Returns(_fixture.Create<LambdaFunctionArn>());
 
         // act
         var request = _fixture.Create<AccessKeyRotationRequest>();
         await _classUnderTest.FunctionHandler(request, new TestLambdaContext());
         
         // assert
-        _mocker.VerifyAll();
-        _mocker.GetMock<IAmazonSecretsManager>()
-            .Verify(x => x.CreateSecretAsync(It.IsAny<CreateSecretRequest>(), It.IsAny<CancellationToken>()), 
-                Times.Never);
+        await _mockAwsSecretsManager.DidNotReceiveWithAnyArgs().CreateSecretAsync(default);
     }
 
     public static IEnumerable<object[]> InvalidFunctionHandlerInputs =>

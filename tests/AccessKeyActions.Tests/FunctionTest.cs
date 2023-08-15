@@ -21,12 +21,12 @@ public class FunctionTest
     private readonly Function _classUnderTest;
 
     public FunctionTest()
-    {   
-        _fixture = new Fixture();
+    {
         _mockFunctionConfiguration = Substitute.For<IFunctionConfiguration>();
         _mockAccessKeyRepository = Substitute.For<IAccessKeyRepository>();
         _mockAwsIamService = Substitute.For<IAmazonIdentityManagementService>();
         
+        _fixture = new Fixture();
         _classUnderTest = new Function(
             _mockFunctionConfiguration, 
             _mockAccessKeyRepository, 
