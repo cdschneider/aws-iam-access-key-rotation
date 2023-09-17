@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-duration-seconds: 900
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
