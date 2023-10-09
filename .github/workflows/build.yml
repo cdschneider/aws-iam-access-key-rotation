@@ -55,4 +55,4 @@ jobs:
       - name: Build
         run: dotnet build -c ${{ matrix.configuration }} --no-restore --nologo
       - name: Test
-        run: dotnet test -c ${{ matrix.configuration }} --no-build -v n --nologo
+        run: dotnet test -c ${{ matrix.configuration }} --no-build -m:1 -v n --nologo
