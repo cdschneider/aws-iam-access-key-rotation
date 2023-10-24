@@ -71,12 +71,6 @@ public class Function
         var functionArn = _fnArnParser.Parse(context.InvokedFunctionArn);
         var secretPolicy = string.Format(Constants.PolicyDocumentFormat, functionArn.AccountId, input.UserName);
         
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            var policySerialized = JsonSerializer.Serialize(secretPolicy);
-            _logger.LogDebug("Executing PutResourcePolicy on {secretName} with the following policy: {policy}", secretName, policySerialized);    
-        }
-        
         await _secretsManager.PutResourcePolicyAsync(new PutResourcePolicyRequest
         {
             SecretId = secretName, 

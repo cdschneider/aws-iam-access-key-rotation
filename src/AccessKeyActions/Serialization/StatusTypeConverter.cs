@@ -14,6 +14,6 @@ public class StatusTypeConverter : JsonConverter<StatusType>
 
     public override void Write(Utf8JsonWriter writer, StatusType value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        writer.WriteStringValue(value.Value);
     }
 }

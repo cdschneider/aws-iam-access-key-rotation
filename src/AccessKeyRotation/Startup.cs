@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AccessKeyRotation.Services;
 using Amazon.IdentityManagement;
 using Amazon.SecretsManager;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AccessKeyRotation;
 
+[ExcludeFromCodeCoverage]
 [Amazon.Lambda.Annotations.LambdaStartup]
 public class Startup
 {

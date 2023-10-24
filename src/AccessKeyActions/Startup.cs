@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AccessKeyActions.Options;
 using AccessKeyActions.Repositories;
 using Amazon.DynamoDBv2;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AccessKeyActions;
 
+[ExcludeFromCodeCoverage]
 [Amazon.Lambda.Annotations.LambdaStartup]
 public class Startup
 {
