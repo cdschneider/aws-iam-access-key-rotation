@@ -1,4 +1,3 @@
-using AccessKeyActions.Configuration;
 using AccessKeyActions.Options;
 using AccessKeyActions.Repositories;
 using Amazon.DynamoDBv2;
@@ -23,9 +22,8 @@ public class Startup
         
         // Core Services
         services.AddSingleton<IConfiguration>(config);
+        services.Configure<AccessKeyActionsOptions>(config.GetSection(AccessKeyActionsOptions.AccessKeyActionsOptionsSection));
         services.Configure<DynamoDBOptions>(config.GetSection(DynamoDBOptions.DynamoDBOptionsSection));
-        
-        services.AddSingleton<IFunctionConfiguration, FunctionConfiguration>();
         services.AddTransient<IAccessKeyRepository, AccessKeyRepository>();
 
         // Logging

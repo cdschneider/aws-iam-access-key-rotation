@@ -1,11 +1,12 @@
-using AccessKeyActions.Configuration;
 using AccessKeyActions.Models;
+using AccessKeyActions.Options;
 using AccessKeyActions.Repositories;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Core;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(AccessKeyActions.Serialization.CustomLambdaSerializer))]
@@ -14,15 +15,15 @@ namespace AccessKeyActions;
 
 public class Function
 {
-    private readonly IFunctionConfiguration _configuration;
+    private readonly AccessKeyActionsOptions _options;
     private readonly IAccessKeyRepository _accessKeyRepository;
     private readonly IAmazonIdentityManagementService _iamService;
     private readonly ILogger<Function> _logger;
     
-    public Function(IFunctionConfiguration configuration, IAccessKeyRepository accessKeyRepository, 
+    public Function(IOptions<AccessKeyActionsOptions> options, IAccessKeyRepository accessKeyRepository, 
         IAmazonIdentityManagementService iamService, ILogger<Function> logger)
     {
-        _configuration = configuration;
+        _options = options.Value;
         _accessKeyRepository = accessKeyRepository;
         _iamService = iamService;
         _logger = logger;
@@ -39,9 +40,9 @@ public class Function
             throw new ArgumentException();
 
         var now = DateTime.UtcNow;
-        var rotationDate = now - _configuration.AccessKeyRotationWindow();
-        var installationWindow = _configuration.AccessKeyInstallationWindow();
-        var recoveryWindow = _configuration.AccessKeyRecoveryWindow();
+        var rotationDate = now - _options.KeyRotation;
+        var installationWindow = _options.KeyInstallation;
+        var recoveryWindow = _options.KeyRecovery;
 
         var result = new List<AccessKeyAction>();
 

@@ -1,11 +1,12 @@
-using AccessKeyActions.Configuration;
 using AccessKeyActions.Models;
+using AccessKeyActions.Options;
 using AccessKeyActions.Repositories;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Lambda.TestUtilities;
 using AutoFixture;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace AccessKeyActions.Tests;
 
 public class FunctionTest
 {
-    private readonly IFunctionConfiguration _mockFunctionConfiguration;
+    private readonly IOptions<AccessKeyActionsOptions> _options;
     private readonly IAccessKeyRepository _mockAccessKeyRepository;
     private readonly IAmazonIdentityManagementService _mockAwsIamService;
     
@@ -22,13 +23,13 @@ public class FunctionTest
 
     public FunctionTest()
     {
-        _mockFunctionConfiguration = Substitute.For<IFunctionConfiguration>();
+        _options = Microsoft.Extensions.Options.Options.Create(new AccessKeyActionsOptions());
         _mockAccessKeyRepository = Substitute.For<IAccessKeyRepository>();
         _mockAwsIamService = Substitute.For<IAmazonIdentityManagementService>();
         
         _fixture = new Fixture();
         _classUnderTest = new Function(
-            _mockFunctionConfiguration, 
+            _options, 
             _mockAccessKeyRepository, 
             _mockAwsIamService,
             new NullLogger<Function>()
@@ -59,8 +60,6 @@ public class FunctionTest
         key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));
         key.Status = StatusType.Active;
 
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-
         // act
         var result = await _classUnderTest.FunctionHandler(
             new List<AccessKey> { key }, new TestLambdaContext());
@@ -76,8 +75,6 @@ public class FunctionTest
         var key = _fixture.Create<AccessKey>();
         key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         key.Status = StatusType.Active;
-        
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
 
         // act
         var result = await _classUnderTest.FunctionHandler(
@@ -97,8 +94,6 @@ public class FunctionTest
         key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
         key.Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(Arg.Any<string>()).Returns(new AccessKeyEntity
             { RotationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30)) });
 
@@ -119,8 +114,6 @@ public class FunctionTest
         var key = _fixture.Create<AccessKey>();
         key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));
         key.Status = StatusType.Inactive;
-        
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
 
         // act
         var result = await _classUnderTest.FunctionHandler(
@@ -138,9 +131,6 @@ public class FunctionTest
         key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         key.Status = StatusType.Inactive;
 
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-
         // act
         var result = await _classUnderTest.FunctionHandler(
             new List<AccessKey> { key }, new TestLambdaContext());
@@ -157,9 +147,6 @@ public class FunctionTest
         key.CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
         key.Status = StatusType.Inactive;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-        _mockFunctionConfiguration.AccessKeyRecoveryWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(Arg.Any<string>()).Returns(new AccessKeyEntity
             { DeactivationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(40)) });
 
@@ -183,8 +170,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));
         keys[1].Status = StatusType.Active;
 
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-
         // act
         var result = await _classUnderTest.FunctionHandler(
             keys, new TestLambdaContext());
@@ -203,7 +188,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         keys[1].Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
         _mockAwsIamService.GetAccessKeyLastUsedAsync(Arg.Any<GetAccessKeyLastUsedRequest>(), Arg.Any<CancellationToken>())
             .Returns(new GetAccessKeyLastUsedResponse
             {
@@ -232,7 +216,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         keys[1].Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
         _mockAwsIamService.GetAccessKeyLastUsedAsync(Arg.Is<GetAccessKeyLastUsedRequest>(r => r.AccessKeyId == keys[0].AccessKeyId), Arg.Any<CancellationToken>())
             .Returns(new GetAccessKeyLastUsedResponse
             {
@@ -275,7 +258,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         keys[1].Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
         _mockAwsIamService.GetAccessKeyLastUsedAsync(Arg.Is<GetAccessKeyLastUsedRequest>(r => r.AccessKeyId == keys[0].AccessKeyId), Arg.Any<CancellationToken>())
             .Returns(new GetAccessKeyLastUsedResponse
             {
@@ -317,8 +299,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
         keys[1].Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(Arg.Any<string>()).Returns(new AccessKeyEntity
             { RotationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30)) });
 
@@ -346,8 +326,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         keys[1].Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        
         // act
         var result = await _classUnderTest.FunctionHandler(
             keys, new TestLambdaContext());
@@ -370,9 +348,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         keys[1].Status = StatusType.Inactive;
 
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-
         // act
         var result = await _classUnderTest.FunctionHandler(
             keys, new TestLambdaContext());
@@ -391,9 +366,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
         keys[1].Status = StatusType.Inactive;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-        _mockFunctionConfiguration.AccessKeyRecoveryWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(Arg.Any<string>()).Returns(new AccessKeyEntity
             { DeactivationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(40)) });
 
@@ -419,8 +391,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(90));
         keys[1].Status = StatusType.Active;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(keys[1].AccessKeyId).Returns(new AccessKeyEntity
             { RotationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30)) });
 
@@ -444,9 +414,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(45));
         keys[1].Status = StatusType.Inactive;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-        _mockFunctionConfiguration.AccessKeyRecoveryWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(keys[1].AccessKeyId).Returns(new AccessKeyEntity
             { DeactivationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(40)) });
 
@@ -470,9 +437,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
         keys[1].Status = StatusType.Inactive;
 
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-
         // act
         var result = await _classUnderTest.FunctionHandler(
             keys, new TestLambdaContext());
@@ -495,9 +459,6 @@ public class FunctionTest
         keys[1].CreateDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(45));
         keys[1].Status = StatusType.Inactive;
         
-        _mockFunctionConfiguration.AccessKeyRotationWindow().Returns(TimeSpan.FromDays(30));
-        _mockFunctionConfiguration.AccessKeyInstallationWindow().Returns(TimeSpan.FromDays(7));
-        _mockFunctionConfiguration.AccessKeyRecoveryWindow().Returns(TimeSpan.FromDays(7));
         _mockAccessKeyRepository.GetByIdAsync(keys[1].AccessKeyId).Returns(new AccessKeyEntity
             { DeactivationDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(40)) });
 
