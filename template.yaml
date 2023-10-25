@@ -24,13 +24,6 @@ Parameters:
     Default: 7776000
     MinValue: 300
 
-Globals:
-  Function:
-    Runtime: 'dotnet7'
-    Architectures:
-      - x86_64
-    Tracing: Active
-
 Resources:
   ExpireAccessKeysStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -75,6 +68,9 @@ Resources:
     Properties:
       CodeUri: ./src/AccessKeyActions/
       Handler: 'AccessKeyActions::AccessKeyActions.Function_FunctionHandler_Generated::FunctionHandler'
+      Runtime: 'dotnet6'
+      Architectures:
+        - x86_64
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref AccessKeyTable
@@ -91,10 +87,14 @@ Resources:
     Properties:
       CodeUri: ./src/AccessKeyRotation/
       Handler: 'AccessKeyRotation::AccessKeyRotation.Function_FunctionHandler_Generated::FunctionHandler'
+      Runtime: 'dotnet6'
+      Architectures:
+        - x86_64
       Policies:
         - IAMFullAccess
         - SecretsManagerReadWrite
         - AWSXrayWriteOnlyAccess
+      Tracing: Active
 
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
