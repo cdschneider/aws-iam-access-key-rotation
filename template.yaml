@@ -95,7 +95,7 @@ Resources:
         - SecretsManagerReadWrite
         - AWSXrayWriteOnlyAccess
       Tracing: Active
-
+  
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
