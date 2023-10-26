@@ -75,6 +75,7 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref AccessKeyTable
         - AWSXrayWriteOnlyAccess
+        - !Ref IAMReadAccessKeysPolicy
       Tracing: Active
       Timeout: 10
       Environment:
@@ -111,6 +112,18 @@ Resources:
               - 'logs:PutResourcePolicy'
               - 'logs:DescribeResourcePolicies'
               - 'logs:DescribeLogGroups'
+            Resource: '*'
+
+  IAMReadAccessKeysPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'iam:GetAccessKeyLastUsed'
+              - 'iam:ListAccessKeys'
             Resource: '*'
 
   IAMUpdateAccessKeysPolicy:
