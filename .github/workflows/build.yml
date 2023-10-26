@@ -34,7 +34,7 @@ jobs:
           use-installer: true
       - run: dotnet tool restore -v n      
       - run: sam validate
-      - run: sam build --debug
+      - run: sam build --parallel --debug
   
   dotnet-build:
     

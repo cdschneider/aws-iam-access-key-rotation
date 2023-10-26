@@ -21,7 +21,7 @@ jobs:
         with:
           use-installer: true
       - run: dotnet tool restore -v n
-      - run: sam build
+      - run: sam build --parallel
       - uses: actions/upload-artifact@v3
         with:
           name: sam-build
