@@ -66,11 +66,7 @@ Resources:
   AccessKeyActionsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/AccessKeyActions/
-      Handler: 'AccessKeyActions::AccessKeyActions.Function_FunctionHandler_Generated::FunctionHandler'
-      Runtime: 'dotnet6'
-      Architectures:
-        - x86_64
+      PackageType: Image
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref AccessKeyTable
@@ -81,20 +77,22 @@ Resources:
       Environment:
         Variables:
           DynamoDB__TableName: !Ref AccessKeyTable
-
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./src/AccessKeyActions/
+  
   AccessKeyRotationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/AccessKeyRotation/
-      Handler: 'AccessKeyRotation::AccessKeyRotation.Function_FunctionHandler_Generated::FunctionHandler'
-      Runtime: 'dotnet6'
-      Architectures:
-        - x86_64
+      PackageType: Image
       Policies:
         - IAMFullAccess
         - SecretsManagerReadWrite
         - AWSXrayWriteOnlyAccess
       Tracing: Active
+    Metadata: 
+      Dockerfile: Dockerfile
+      DockerContext: ./src/AccessKeyRotation/
   
   StepFunctionsLoggingPolicy:
     Type: AWS::IAM::ManagedPolicy
