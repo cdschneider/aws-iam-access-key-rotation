@@ -18,6 +18,13 @@ Metadata:
     SourceCodeUrl: https://github.com/cdschneider/aws-access-key-expiry
 
 Parameters:
+  LambdaFunctionArch:
+    Type: String
+    Default: x86_64
+    AllowedValues:
+      - x86_64
+      - arm64
+    Description: The architecture used for the Lambda functions in this stack
   AccessKeyTTL:
     Type: Number
     Description: The amount of time (in seconds) before an IAM access key should be expired. 
@@ -68,7 +75,7 @@ Resources:
     Properties:
       PackageType: Image
       Architectures:
-        - arm64
+        - Ref: LambdaFunctionArch
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref AccessKeyTable
@@ -88,7 +95,7 @@ Resources:
     Properties:
       PackageType: Image
       Architectures:
-        - arm64
+        - Ref: LambdaFunctionArch
       Policies:
         - IAMFullAccess
         - SecretsManagerReadWrite
