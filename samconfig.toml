@@ -14,7 +14,7 @@ force_upload = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
 tags = "App=\"aws-access-key-expiry\""
-image_repositories = []
+image_repositories = ["AccessKeyRotationFunction=892601359836.dkr.ecr.us-east-1.amazonaws.com/awsaccesskeyexpirya3e3c7e1/accesskeyrotationfunctionb8c41863repo", "AccessKeyActionsFunction=892601359836.dkr.ecr.us-east-1.amazonaws.com/awsaccesskeyexpirya3e3c7e1/accesskeyactionsfunction9a31ded0repo"]
 
 [default.package]
 [default.package.parameters]
