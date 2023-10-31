@@ -12,7 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Annotations" Version="1.0.0" />
-    <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
+    <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.3.1" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.203.1" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.200.53" />
