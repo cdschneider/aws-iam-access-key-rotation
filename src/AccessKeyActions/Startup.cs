@@ -11,10 +11,13 @@ using Microsoft.Extensions.Logging;
 namespace AccessKeyActions;
 
 [ExcludeFromCodeCoverage]
-[Amazon.Lambda.Annotations.LambdaStartup]
-public class Startup
+public static class Startup
 {
-    public void ConfigureServices(IServiceCollection services)
+    private static IServiceProvider? _serviceProvider;
+
+    public static IServiceProvider ServiceProvider => _serviceProvider ??= InitializeServiceProvider();
+    
+    private static void ConfigureServices(IServiceCollection services)
     {
         var config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -40,5 +43,12 @@ public class Startup
         AWSSDKHandler.RegisterXRayForAllServices();
         services.AddAWSService<IAmazonDynamoDB>();
         services.AddAWSService<IAmazonIdentityManagementService>();
+    }
+    
+    private static IServiceProvider InitializeServiceProvider()
+    {
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        return services.BuildServiceProvider();
     }
 }
