@@ -26,7 +26,7 @@ jobs:
           role-duration-seconds: 900
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '7.0.x'
       - uses: aws-actions/setup-sam@v2
@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '7.0.x'
       - name: Restore dependencies
