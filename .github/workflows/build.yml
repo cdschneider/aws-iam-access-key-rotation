@@ -26,13 +26,9 @@ jobs:
           role-duration-seconds: 900
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '7.0.x'
       - uses: aws-actions/setup-sam@v2
         with:
-          use-installer: true
-      - run: dotnet tool restore -v n      
+          use-installer: true  
       - run: sam validate
       - run: sam build --parallel --debug
   
@@ -41,6 +37,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
+        dotnet-version: ['6.0.x', '7.0.x']
         configuration: ['Debug', 'Release']
         os: [ ubuntu ]
 
@@ -49,7 +46,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: ${{ matrix.dotnet-version }}
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
