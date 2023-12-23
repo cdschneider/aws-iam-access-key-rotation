@@ -37,7 +37,6 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        dotnet-version: ['6.0.x', '7.0.x']
         configuration: ['Debug', 'Release']
         os: [ ubuntu ]
 
@@ -46,7 +45,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: '6.0.x'
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
