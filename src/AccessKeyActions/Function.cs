@@ -3,8 +3,8 @@ using AccessKeyActions.Options;
 using AccessKeyActions.Repositories;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
+using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Core;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,8 +20,6 @@ public class Function
     private readonly IAmazonIdentityManagementService _iamService;
     private readonly ILogger<Function> _logger;
     
-    public Function() : this(Startup.ServiceProvider) {}
-    
     public Function(IOptions<AccessKeyActionsOptions> options, IAccessKeyRepository accessKeyRepository, 
         IAmazonIdentityManagementService iamService, ILogger<Function> logger)
     {
@@ -30,15 +28,8 @@ public class Function
         _iamService = iamService;
         _logger = logger;
     }
-    
-    private Function(IServiceProvider serviceProvider) 
-    {
-        _options = serviceProvider.GetRequiredService<IOptions<AccessKeyActionsOptions>>().Value;
-        _accessKeyRepository = serviceProvider.GetRequiredService<IAccessKeyRepository>();
-        _iamService = serviceProvider.GetRequiredService<IAmazonIdentityManagementService>();
-        _logger = serviceProvider.GetRequiredService<ILogger<Function>>();
-    }
-    
+
+    [LambdaFunction]
     public async Task<IList<AccessKeyAction>> FunctionHandler(IList<AccessKey> keys, ILambdaContext context)
     {
         if (keys == null) throw new ArgumentNullException(nameof(keys));

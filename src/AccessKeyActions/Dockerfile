@@ -7,4 +7,4 @@ RUN dotnet publish -f net6.0 --use-current-runtime -o publish/ --no-self-contain
 FROM public.ecr.aws/lambda/dotnet:6 AS final
 COPY --from=build app/publish/* ${LAMBDA_TASK_ROOT}/
 
-CMD [ "AccessKeyActions::AccessKeyActions.Function::FunctionHandler" ]
+CMD [ "AccessKeyActions::AccessKeyActions.Function_FunctionHandler_Generated::FunctionHandler" ]

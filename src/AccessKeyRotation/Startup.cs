@@ -10,13 +10,10 @@ using Microsoft.Extensions.Logging;
 namespace AccessKeyRotation;
 
 [ExcludeFromCodeCoverage]
-public static class Startup
+[Amazon.Lambda.Annotations.LambdaStartup]
+public class Startup
 {
-    private static IServiceProvider? _serviceProvider;
-
-    public static IServiceProvider ServiceProvider => _serviceProvider ??= InitializeServiceProvider();
-    
-    private static void ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
     {
         var config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -40,12 +37,5 @@ public static class Startup
         AWSSDKHandler.RegisterXRayForAllServices();
         services.AddAWSService<IAmazonIdentityManagementService>();
         services.AddAWSService<IAmazonSecretsManager>();
-    }
-    
-    private static IServiceProvider InitializeServiceProvider()
-    {
-        var services = new ServiceCollection();
-        ConfigureServices(services);
-        return services.BuildServiceProvider();
     }
 }

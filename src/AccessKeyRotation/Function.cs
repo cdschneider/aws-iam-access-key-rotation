@@ -1,14 +1,14 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using AccessKeyRotation.Models;
 using AccessKeyRotation.Services;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
+using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -22,8 +22,6 @@ public class Function
     private readonly ILambdaFunctionArnParser _fnArnParser;
     private readonly ILogger<Function> _logger;
 
-    public Function() : this(Startup.ServiceProvider) {}
-    
     public Function(IAmazonSecretsManager secretsManager, IAmazonIdentityManagementService iamService,
         ILambdaFunctionArnParser fnArnParser, ILogger<Function> logger)
     {
@@ -32,15 +30,8 @@ public class Function
         _fnArnParser = fnArnParser;
         _logger = logger;
     }
-
-    private Function(IServiceProvider serviceProvider)
-    {
-        _secretsManager = serviceProvider.GetRequiredService<IAmazonSecretsManager>();
-        _iamService = serviceProvider.GetRequiredService<IAmazonIdentityManagementService>();
-        _fnArnParser = serviceProvider.GetRequiredService<ILambdaFunctionArnParser>();
-        _logger = serviceProvider.GetRequiredService<ILogger<Function>>();
-    }
     
+    [LambdaFunction]
     public async Task FunctionHandler(AccessKeyRotationRequest input, ILambdaContext context)
     {
         if (input == null) throw new ArgumentNullException(nameof(input));

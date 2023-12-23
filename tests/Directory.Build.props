@@ -2,6 +2,7 @@
     <PropertyGroup>
         <CollectCoverage>true</CollectCoverage>
         <CoverletOutput>$(MSBuildThisFileDirectory)CoverageResults/</CoverletOutput>
+        <Exclude>[*]*_Generated</Exclude>
         <MergeWith>$(MSBuildThisFileDirectory)CoverageResults/coverage.json</MergeWith>
         <CoverletOutputFormat>cobertura,json</CoverletOutputFormat>
     </PropertyGroup>
