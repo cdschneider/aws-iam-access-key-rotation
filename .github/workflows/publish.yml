@@ -48,7 +48,7 @@ jobs:
           role-to-assume: arn:aws:iam::892601359836:role/github-action-role
           aws-region: ${{ env.AWS_REGION }}
       - name: Download sam-build artifacts  
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sam-build
       - uses: aws-actions/setup-sam@v2
