@@ -13,7 +13,6 @@ updates:
         patterns:
           - "Amazon.*"
           - "AWSSDK.*"
-          - "AWSXRayRecorder"
       test-dependencies:
         patterns:
           - "AutoFixture*"
