@@ -22,7 +22,8 @@ updates:
           - "NSubstitute*"
           - "Microsoft.NET.Test.Sdk"
     ignore:
-      - update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
     schedule:
       day: "sunday"
       interval: "weekly"
