@@ -31,6 +31,16 @@ updates:
     reviewers:
       - "cdschneider"
 
+  - package-ecosystem: "docker"
+    directory: "/" # Location of package manifests
+    schedule:
+      day: "sunday" 
+      interval: "weekly"
+    assignees:
+      - "cdschneider"
+    reviewers:
+      - "cdschneider"
+
   - package-ecosystem: "github-actions"
     directory: "/" # Location of package manifests
     schedule:
