@@ -18,8 +18,8 @@ updates:
         patterns:
           - "AutoFixture*"
           - "xunit*"
-          - "coverlet.*"
-          - "NSubstitute.*"
+          - "coverlet*"
+          - "NSubstitute*"
           - "Microsoft.NET.Test.Sdk"
     ignore:
       - update-types: [ "version-update:semver-major" ]
