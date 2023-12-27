@@ -3,8 +3,38 @@ updates:
 
   - package-ecosystem: "nuget"
     directory: "/" # Location of package manifests
+    groups:
+      aspnet: 
+        patterns:
+          - "Microsoft.*"
+        exclude-patterns:
+          - "Microsoft.NET.Test.Sdk"
+      awssdk:
+        patterns:
+          - "Amazon.*"
+          - "AWSSDK.*"
+      test-dependencies:
+        patterns:
+          - "AutoFixture*"
+          - "xunit*"
+          - "coverlet*"
+          - "NSubstitute*"
+          - "Microsoft.NET.Test.Sdk"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
     schedule:
       day: "sunday"
+      interval: "weekly"
+    assignees:
+      - "cdschneider"
+    reviewers:
+      - "cdschneider"
+
+  - package-ecosystem: "docker"
+    directory: "/" # Location of package manifests
+    schedule:
+      day: "sunday" 
       interval: "weekly"
     assignees:
       - "cdschneider"
