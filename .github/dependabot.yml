@@ -3,6 +3,8 @@ updates:
 
   - package-ecosystem: "nuget"
     directory: "/" # Location of package manifests
+    ignore:
+      - update-types: [ "version-update:semver-major" ]
     schedule:
       day: "sunday"
       interval: "weekly"
