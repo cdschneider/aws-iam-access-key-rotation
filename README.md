@@ -1,6 +1,15 @@
-# aws-access-key-expiry
+# aws-iam-access-key-rotation
 
-## Outstanding Items
+An AWS Serverless-based solution that helps manage the rotation of an account's IAM Access Keys
 
-- [ ] One-click deployment (via [Cloudformation quick-create links](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-stacks-quick-create-links.html))
-- [ ] Upgrade to NET7 runtime; using AOT compilation
+## Contributing
+
+Contributions are always welcome!
+
+See `contributing.md` for ways to get started.
+
+Please adhere to this project's `code of conduct`.
+
+## Authors
+
+- [@cdschneider](https://www.github.com/cdschneider)
