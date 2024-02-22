@@ -1,2 +1,5 @@
-include_checks:
+mandatory_checks:
   - W
+  - E
+include_checks: 
+  - I
