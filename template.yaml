@@ -64,6 +64,8 @@ Resources:
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
 
   AccessKeyActionsFunction:
     Type: AWS::Serverless::Function
@@ -144,6 +146,8 @@ Resources:
 
   AccessKeyTable:
     Type: AWS::Serverless::SimpleTable
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
     Properties:
       PrimaryKey:
         Name: Id
