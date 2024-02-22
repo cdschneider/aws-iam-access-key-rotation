@@ -67,15 +67,5 @@ public class Function
         }
 
         _logger.LogInformation("AccessKey has been generated for {username} and stored as {secretName}", input.UserName, secretName);
-        
-        var functionArn = _fnArnParser.Parse(context.InvokedFunctionArn);
-        var secretPolicy = string.Format(Constants.PolicyDocumentFormat, functionArn.AccountId, input.UserName);
-        
-        await _secretsManager.PutResourcePolicyAsync(new PutResourcePolicyRequest
-        {
-            SecretId = secretName, 
-            ResourcePolicy = secretPolicy,
-            BlockPublicPolicy = true
-        });
     }
 }

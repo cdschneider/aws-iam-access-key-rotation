@@ -60,8 +60,6 @@ public class FunctionTest
             .Returns(_fixture.Create<CreateAccessKeyResponse>());
         _mockAwsSecretsManager.CreateSecretAsync(Arg.Any<CreateSecretRequest>(), Arg.Any<CancellationToken>())
             .Returns(_fixture.Create<CreateSecretResponse>());
-        _mockAwsSecretsManager.PutResourcePolicyAsync(Arg.Any<PutResourcePolicyRequest>(), Arg.Any<CancellationToken>())
-            .Returns(null as PutResourcePolicyResponse);
         _mockLambdaFunctionArnParser.Parse(Arg.Any<string>()).Returns(_fixture.Create<LambdaFunctionArn>());
 
         // act
@@ -82,8 +80,6 @@ public class FunctionTest
             .Returns(_fixture.Create<CreateAccessKeyResponse>());
         _mockAwsSecretsManager.UpdateSecretAsync(Arg.Any<UpdateSecretRequest>(), Arg.Any<CancellationToken>())
             .Returns(_fixture.Create<UpdateSecretResponse>());
-        _mockAwsSecretsManager.PutResourcePolicyAsync(Arg.Any<PutResourcePolicyRequest>(), Arg.Any<CancellationToken>())
-            .Returns(null as PutResourcePolicyResponse);
         _mockLambdaFunctionArnParser.Parse(Arg.Any<string>()).Returns(_fixture.Create<LambdaFunctionArn>());
 
         // act
