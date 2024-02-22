@@ -25,11 +25,6 @@ Parameters:
       - x86_64
       - arm64
     Description: The architecture used for the Lambda functions in this stack
-  AccessKeyTTL:
-    Type: Number
-    Description: The amount of time (in seconds) before an IAM access key should be expired. 
-    Default: 7776000
-    MinValue: 300
 
 Resources:
   ExpireAccessKeysStateMachine:
@@ -69,6 +64,8 @@ Resources:
 
   ExpireAccessKeysStateMachineLogGroup:
     Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
 
   AccessKeyActionsFunction:
     Type: AWS::Serverless::Function
@@ -149,6 +146,8 @@ Resources:
 
   AccessKeyTable:
     Type: AWS::Serverless::SimpleTable
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
     Properties:
       PrimaryKey:
         Name: Id
