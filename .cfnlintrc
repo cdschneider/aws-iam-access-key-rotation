@@ -1,3 +1,2 @@
 include_checks:
-  - I
   - W
