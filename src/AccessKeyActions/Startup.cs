@@ -29,12 +29,7 @@ public class Startup
         services.AddTransient<IAccessKeyRepository, AccessKeyRepository>();
 
         // Logging
-        services.AddLogging(loggingBuilder =>
-        {
-            loggingBuilder.ClearProviders();
-            loggingBuilder.AddConfiguration(config.GetSection("Logging"));
-            loggingBuilder.AddJsonConsole();
-        });
+        services.AddLogging();
 
         // AWS Services
         AWSSDKHandler.RegisterXRayForAllServices();
