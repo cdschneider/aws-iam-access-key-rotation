@@ -26,7 +26,12 @@ public class Startup
         services.AddTransient<ILambdaFunctionArnParser, LambdaFunctionArnParser>();
         
         // Logging
-        services.AddLogging();
+        services.AddLogging(builder =>
+        {
+            builder.ClearProviders();
+            builder.AddConfiguration(config.GetSection("Logging"));
+            builder.AddJsonConsole();
+        });
         
         // AWS Services
         AWSSDKHandler.RegisterXRayForAllServices();
