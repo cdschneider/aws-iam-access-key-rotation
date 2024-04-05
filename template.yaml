@@ -35,7 +35,7 @@ Resources:
         AccessKeyActionsFunctionArn: !GetAtt AccessKeyActionsFunction.Arn
         AccessKeyRotationFunctionArn: !GetAtt AccessKeyRotationFunction.Arn
         AccessKeyDynamoDbTableName: !Ref AccessKeyTable
-      Type: STANDARD
+      Type: EXPRESS
       Tracing:
         Enabled: True
       Logging:
