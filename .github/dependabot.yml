@@ -15,7 +15,17 @@ updates:
       - "cdschneider"
 
   - package-ecosystem: "docker"
-    directory: "/" # Location of package manifests
+    directory: "/src/AccessKeyActions/"
+    schedule:
+      day: "sunday" 
+      interval: "weekly"
+    assignees:
+      - "cdschneider"
+    reviewers:
+      - "cdschneider"
+
+  - package-ecosystem: "docker"
+    directory: "/src/AccessKeyRotation/"
     schedule:
       day: "sunday" 
       interval: "weekly"
