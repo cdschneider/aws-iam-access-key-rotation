@@ -3,6 +3,23 @@ updates:
 
   - package-ecosystem: "nuget"
     directory: "/" # Location of package manifests
+    groups:
+      aspnet: 
+        patterns:
+          - "Microsoft.*"
+        exclude-patterns:
+          - "Microsoft.NET.Test.Sdk"
+      awssdk:
+        patterns:
+          - "Amazon.*"
+          - "AWSSDK.*"
+      test-dependencies:
+        patterns:
+          - "AutoFixture*"
+          - "xunit*"
+          - "coverlet*"
+          - "NSubstitute*"
+          - "Microsoft.NET.Test.Sdk"
     ignore:
       - dependency-name: "*"
         update-types: [ "version-update:semver-major" ]
