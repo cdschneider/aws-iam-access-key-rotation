@@ -13,6 +13,9 @@ updates:
         patterns:
           - "Amazon.*"
           - "AWSSDK.*"
+          - "AWS*"
+        exclude-patterns:
+          - "Amazon.Lambda.TestUtilities"
       test-dependencies:
         patterns:
           - "AutoFixture*"
@@ -20,12 +23,12 @@ updates:
           - "coverlet*"
           - "NSubstitute*"
           - "Microsoft.NET.Test.Sdk"
+          - "Amazon.Lambda.TestUtilities"
     ignore:
       - dependency-name: "*"
         update-types: [ "version-update:semver-major" ]
     schedule:
-      day: "sunday"
-      interval: "weekly"
+      interval: "monthly"
     assignees:
       - "cdschneider"
     reviewers:
@@ -34,8 +37,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/src/AccessKeyActions/"
     schedule:
-      day: "sunday" 
-      interval: "weekly"
+      interval: "monthly"
     assignees:
       - "cdschneider"
     reviewers:
@@ -44,8 +46,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/src/AccessKeyRotation/"
     schedule:
-      day: "sunday" 
-      interval: "weekly"
+      interval: "monthly"
     assignees:
       - "cdschneider"
     reviewers:
@@ -54,8 +55,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/" # Location of package manifests
     schedule:
-      day: "sunday" 
-      interval: "weekly"
+      interval: "monthly"
     assignees:
       - "cdschneider"
     reviewers:
